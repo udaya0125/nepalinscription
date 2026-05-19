@@ -1,0 +1,77 @@
+@import "tailwindcss";
+
+
+
+h1,h2,h3 {
+    font-family: "Jost", sans-serif;
+
+
+}
+
+
+p,li,ul, span, option , label{
+    font-family: "Inter", sans-serif;
+
+}
+
+/* body{
+  background-color: #e5e3d7;
+  
+} */
+
+body{
+
+  background-image: url("/public/images/bg1.jpeg");
+  background-position: fixed;
+}
+
+
+
+/* Make Swiper navigation buttons smaller */
+.swiper-button-next,
+.swiper-button-prev {
+  width: 26px !important;
+  height: 26px !important;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 9999px;
+  padding: 6px;
+  color: #fff !important;
+}
+
+.swiper-button-next::after,
+.swiper-button-prev::after {
+  font-size: 6px !important; /* arrow size */
+  font-weight: bold;
+}
+
+/* Position closer to slider */
+.swiper-button-next {
+  right: 4px;
+}
+
+.swiper-button-prev {
+  left: 4px;
+}
+
+
+@font-face {
+  font-family: 'Preeti';
+  src: url('/public/font/Preeti\ Normal.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal
+}
+
+@font-face {
+  font-family: 'Preeti Heavy';
+  src: url('/public/font/Preeti\ Heavy\ Normal.ttf') format('truetype');
+   font-weight: normal;
+  font-style: normal
+}
+
+.preeti-heavy{
+  font-family: 'Preeti Heavy', sans-serif;
+}
+
+.preeti-font{
+  font-family: 'Preeti', sans-serif;
+}
