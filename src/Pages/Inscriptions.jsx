@@ -363,10 +363,12 @@ const Inscriptions = () => {
           materials. This resource is designed to offer detailed visual
           documentation and metadata for a wide corpus of ancient and historical
           inscriptions from Nepal to the scholarly community and the general
-          public. Our database continues to expand through the ongoing addition
-          of new materials. Visit and explore the collection documenting ancient
-          and historical epigraphic records from Nepal!
+          public. 
         </p>
+        <p className="text-lg mb-8">
+          Our database continues to expand through the ongoing addition
+          of new materials. Visit and explore the collection documenting ancient
+          and historical epigraphic records from Nepal!</p>
 
         {/* FILTERS (DEMO ONLY) */}
         <div className="grid sm:grid-cols-3 gap-6 mb-12">
