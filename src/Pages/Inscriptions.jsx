@@ -356,19 +356,19 @@ const Inscriptions = () => {
           original context. In response to these challenges, this initiative
           undertakes the systematic documentation and study of Nepal’s
           epigraphic heritage through extensive fieldwork. The research involves
-          on-site surveys and the collection of primary data, including
-          high-resolution images and video recordings of inscriptions in situ. A
+          on-site visits and the collection of first-hand primary data. A
           central component of the project is the development and dissemination
           of a digital database that provides structured access to these
           materials. This resource is designed to offer detailed visual
           documentation and metadata for a wide corpus of ancient and historical
           inscriptions from Nepal to the scholarly community and the general
-          public. 
+          public.
         </p>
         <p className="text-lg mb-8">
-          Our database continues to expand through the ongoing addition
-          of new materials. Visit and explore the collection documenting ancient
-          and historical epigraphic records from Nepal!</p>
+          Our database continues to expand through the ongoing addition of new
+          materials. Visit and explore the collection documenting ancient and
+          historical epigraphic records from Nepal!
+        </p>
 
         {/* FILTERS (DEMO ONLY) */}
         <div className="grid sm:grid-cols-3 gap-6 mb-12">
@@ -409,11 +409,11 @@ const Inscriptions = () => {
               onClick={() => window.scrollTo(0, 0)}>
               <div className="grid  hover:text-blue-700 sm:grid-cols-5 mt-12 gap-12 p-4 rounded-lg transition">
                 {/* IMAGE */}
-                <div className="sm:col-span-2">
+                <div className="group overflow-hidden sm:col-span-2">
                   {pub.images?.length > 0 ? (
                     <img
                       src={`${imgurl}/${pub.images[getPosterImageIndex(pub)]?.image_path}`}
-                      className="w-full h-64 object-cover"
+                      className="w-full h-64 object-cover transition-transform duration-500 ease-in-out hover:scale-110"
                       alt={pub.title}
                       onError={(e) =>
                         (e.target.src = "images/inscription/placeholder.jpg")

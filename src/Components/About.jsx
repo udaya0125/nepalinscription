@@ -188,12 +188,9 @@ const About = () => {
   return (
     <>
       <div
-        className="my-12 hidden md:flex h-[100vh] justify-center items-center"
-        style={{
-          backgroundImage: "url('images/Scroll2.png')",
-          backgroundPosition: "center",
-          backgroundSize: "cover",
-        }}>
+        className=" hidden md:flex  justify-center items-center"
+        // 
+        >
         <div className="max-w-3xl mx-auto px-4 text-center space-y-6 py-12">
           <h2 className="text-4xl font-semibold sm:text-5xl">
             Inscriptions of Nepal
