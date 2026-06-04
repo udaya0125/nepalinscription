@@ -1270,16 +1270,11 @@ const TreeNode = ({
   onSelect,
   children,
   depth = 0,
+  openKeys,
 }) => {
   const isSelected = selectedKey === nodeKey;
   const hasChildren = React.Children.count(children) > 0;
-  const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    if (selectedKey && selectedKey.startsWith(nodeKey + "_")) {
-      setOpen(true);
-    }
-  }, [selectedKey, nodeKey]);
+  const open = openKeys.has(nodeKey);
 
   const paddingLeft = depth === 0 ? "pl-4" : depth === 1 ? "pl-7" : "pl-10";
 
@@ -1293,10 +1288,7 @@ const TreeNode = ({
   return (
     <div>
       <button
-        onClick={() => {
-          onSelect(nodeKey);
-          if (hasChildren) setOpen((o) => !o);
-        }}
+        onClick={() => onSelect(nodeKey, { hasChildren, isOpen: open })}
         className={`w-full text-left flex items-center justify-between gap-2 pr-4 text-sm transition-colors ${paddingLeft} ${depthStyles} ${
           isSelected
             ? "bg-[#3d4f39] text-white"
@@ -1328,8 +1320,8 @@ const SidebarContent = ({
   getSubCategoriesForCategory,
   getChildCategoriesForSubCategory,
   selectedKey,
-  setSelectedKey,
   onSelect,
+  openKeys,
 }) => (
   <>
     <div className="p-3 bg-[#50644b] text-white text-sm font-semibold tracking-wide uppercase rounded-t-lg sticky top-0 z-10">
@@ -1344,11 +1336,9 @@ const SidebarContent = ({
             label={cat.name}
             nodeKey={`cat_${cat.id}`}
             selectedKey={selectedKey}
-            onSelect={(key) => {
-              setSelectedKey(key);
-              onSelect && onSelect();
-            }}
-            depth={0}>
+            onSelect={onSelect}
+            depth={0}
+            openKeys={openKeys}>
             {subCats.map((sc) => {
               const childCats = getChildCategoriesForSubCategory(sc.id);
               return (
@@ -1357,22 +1347,18 @@ const SidebarContent = ({
                   label={sc.name}
                   nodeKey={`sub_${sc.id}`}
                   selectedKey={selectedKey}
-                  onSelect={(key) => {
-                    setSelectedKey(key);
-                    onSelect && onSelect();
-                  }}
-                  depth={1}>
+                  onSelect={onSelect}
+                  depth={1}
+                  openKeys={openKeys}>
                   {childCats.map((cc) => (
                     <TreeNode
                       key={cc.id}
                       label={cc.name}
                       nodeKey={`child_${cc.id}`}
                       selectedKey={selectedKey}
-                      onSelect={(key) => {
-                        setSelectedKey(key);
-                        onSelect && onSelect();
-                      }}
+                      onSelect={onSelect}
                       depth={2}
+                      openKeys={openKeys}
                     />
                   ))}
                 </TreeNode>
@@ -1394,6 +1380,7 @@ const Palaeographical = () => {
   const [selectedKey, setSelectedKey] = useState(null);
   const [autoSelected, setAutoSelected] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [openKeys, setOpenKeys] = useState(new Set());
   const [filters, setFilters] = useState({
     period: "All",
     script: "All",
@@ -1403,6 +1390,7 @@ const Palaeographical = () => {
   });
 
   const drawerRef = useRef(null);
+  const contentPanelRef = useRef(null);
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
@@ -1592,6 +1580,90 @@ const Palaeographical = () => {
   //   return null;
   // };
 
+  const getOpenPathForNode = (key, options = {}) => {
+    if (!key) return [];
+
+    if (key.startsWith("cat_")) {
+      const catId = key.replace("cat_", "");
+      const hasSubCategories = getSubCategoriesForCategory(catId).length > 0;
+      return options.hasChildren ?? hasSubCategories ? [key] : [];
+    }
+
+    if (key.startsWith("sub_")) {
+      const subId = key.replace("sub_", "");
+      const currentSubCategory = subCategory.find((item) => sameId(item.id, subId));
+
+      if (!currentSubCategory) return [];
+
+      const hasChildCategories =
+        options.hasChildren ?? getChildCategoriesForSubCategory(subId).length > 0;
+      const path = [`cat_${currentSubCategory.category_id}`];
+
+      if (hasChildCategories) {
+        path.push(key);
+      }
+
+      return path;
+    }
+
+    if (key.startsWith("child_")) {
+      const childId = key.replace("child_", "");
+      const currentChildCategory =
+        childCategory.find((item) => sameId(item.id, childId)) ||
+        filteredPalaeographical.find((item) => sameId(item.child_category?.id, childId))
+          ?.child_category;
+      const parentSubId = currentChildCategory?.sub_category_id;
+
+      if (!parentSubId) return [];
+
+      const parentSubCategory = subCategory.find((item) => sameId(item.id, parentSubId));
+
+      if (!parentSubCategory) return [];
+
+      return [`cat_${parentSubCategory.category_id}`, `sub_${parentSubCategory.id}`];
+    }
+
+    return [];
+  };
+
+  const getClosedPathForNode = (key) => {
+    if (!key) return [];
+
+    if (key.startsWith("cat_")) {
+      return [];
+    }
+
+    if (key.startsWith("sub_")) {
+      const subId = key.replace("sub_", "");
+      const currentSubCategory = subCategory.find((item) => sameId(item.id, subId));
+
+      return currentSubCategory ? [`cat_${currentSubCategory.category_id}`] : [];
+    }
+
+    if (key.startsWith("child_")) {
+      const childId = key.replace("child_", "");
+      const currentChildCategory =
+        childCategory.find((item) => sameId(item.id, childId)) ||
+        filteredPalaeographical.find((item) => sameId(item.child_category?.id, childId))
+          ?.child_category;
+      const parentSubId = currentChildCategory?.sub_category_id;
+
+      if (!parentSubId) return [];
+
+      const parentSubCategory = subCategory.find((item) => sameId(item.id, parentSubId));
+
+      return parentSubCategory
+        ? [`cat_${parentSubCategory.category_id}`, `sub_${parentSubCategory.id}`]
+        : [];
+    }
+
+    return [];
+  };
+
+  // const scrollToTop = () => {
+  //   window.scrollTo({ top: 1200, behavior: "smooth" });
+  // };
+
   const resolveContent = (key) => {
     if (!key) return null;
 
@@ -1663,7 +1735,7 @@ const Palaeographical = () => {
       // Look up the child category from state first, then fall back to embedded objects
       const cc =
         childCategory.find((c) => String(c.id) === childId) ||
-        palaeographical // use unfiltered list here
+        filteredPalaeographical
           .find((p) => sameId(p.child_category?.id, childId))?.child_category;
 
       const parentSub = subCategory.find((s) =>
@@ -1673,8 +1745,7 @@ const Palaeographical = () => {
         sameId(c.id, parentSub?.category_id),
       );
 
-      // Use the UNFILTERED palaeographical list so items always show
-      const items = palaeographical.filter(
+      const items = filteredPalaeographical.filter(
         (p) =>
           sameId(p.child_category_id, childId) ||
           sameId(p.child_category?.id, childId),
@@ -1690,6 +1761,29 @@ const Palaeographical = () => {
     return null;
   };
   const content = resolveContent(selectedKey);
+
+  const handleTreeSelect = (key, options = {}) => {
+    setSelectedKey(key);
+    const nextOpenPath =
+      options.hasChildren && options.isOpen
+        ? getClosedPathForNode(key)
+        : getOpenPathForNode(key, options);
+
+    setOpenKeys(new Set(nextOpenPath));
+
+    // const shouldScrollToTop =
+    //   (key.startsWith("cat_") && !options.hasChildren) ||
+    //   (key.startsWith("sub_") && !options.hasChildren) ||
+    //   key.startsWith("child_");
+
+    // if (shouldScrollToTop) {
+    //   scrollToTop();
+    // }
+
+    if (drawerOpen && !options.hasChildren) {
+      setDrawerOpen(false);
+    }
+  };
 
   const handleFilterChange = (key, value) =>
     setFilters((prev) => ({ ...prev, [key]: value }));
@@ -1708,7 +1802,8 @@ const Palaeographical = () => {
     getSubCategoriesForCategory,
     getChildCategoriesForSubCategory,
     selectedKey,
-    setSelectedKey,
+    onSelect: handleTreeSelect,
+    openKeys,
   };
 
   // Derive current category label for the mobile header button
@@ -1742,7 +1837,7 @@ const Palaeographical = () => {
       </div>
 
       {/* Intro */}
-      <div className=" px-20 mx-auto py-10 sm:py-16">
+      <div className="px-6 lg:px-20 mx-auto py-10 sm:py-16">
         <h2 className="text-xl sm:text-3xl font-semibold mb-4">
           Database of Palaeographical and Visual Features of Inscriptions
         </h2>
@@ -1839,7 +1934,7 @@ const Palaeographical = () => {
       </div>
 
       {/* ── Two-Panel Layout ─────────────────────────────────────────────────── */}
-      <div className=" px-20 mx-auto pb-24">
+      <div className="px-6 lg:px-20 mx-auto pb-24">
         {/* Mobile/Tablet: Category toggle button */}
         <div className="lg:hidden mb-4">
           <button
@@ -1872,15 +1967,17 @@ const Palaeographical = () => {
         <div className="flex gap-6 lg:gap-16 min-h-[500px] lg:min-h-[600px]">
           {/* ── Left: Desktop Sidebar ───────────────────────────────────────── */}
           {/* <aside className="hidden lg:block w-72 shrink-0  border border-gray-200 backdrop-blur-xl rounded-lg overflow-y-auto self-start  sticky top-4">
-            <SidebarContent {...sidebarProps} onSelect={null} />
+            <SidebarContent {...sidebarProps} />
           </aside> */}
           {/* ── Left: Desktop Sidebar ───────────────────────────────────────── */}
           <aside className="hidden lg:block w-96 shrink-0 border border-gray-200 rounded-lg overflow-y-auto self-start sticky top-4 ">
-            <SidebarContent {...sidebarProps} onSelect={null} />
+            <SidebarContent {...sidebarProps} />
           </aside>
 
           {/* ── Right: Content Panel ──────────────────────────────────────── */}
-          <div className="flex-1 p-4 sm:p-6 overflow-y-auto border border-gray-200 rounded-lg min-w-0">
+          <div
+            ref={contentPanelRef}
+            className="flex-1 p-4 sm:p-6 overflow-y-auto border border-gray-200 rounded-lg min-w-0 max-h-[80vh] self-start lg:sticky top-24">
             {!selectedKey ? (
               <div className="h-full flex flex-col items-center justify-center text-center text-gray-400 gap-3 py-16 sm:py-20">
                 <svg
@@ -2006,58 +2103,7 @@ const Palaeographical = () => {
 
             {/* Scrollable tree */}
             <div className="flex-1 overflow-y-auto">
-              <nav className="py-2 flex flex-col">
-                {sortedCategories.map((cat) => {
-                  const subCats = getSubCategoriesForCategory(cat.id);
-                  return (
-                    <TreeNode
-                      key={cat.id}
-                      label={cat.name}
-                      nodeKey={`cat_${cat.id}`}
-                      selectedKey={selectedKey}
-                      onSelect={(key) => {
-                        setSelectedKey(key);
-                        // Close drawer only when selecting a leaf (no children)
-                        const hasSubs =
-                          getSubCategoriesForCategory(cat.id).length > 0;
-                        if (!hasSubs) setDrawerOpen(false);
-                      }}
-                      depth={0}>
-                      {subCats.map((sc) => {
-                        const childCats = getChildCategoriesForSubCategory(
-                          sc.id,
-                        );
-                        return (
-                          <TreeNode
-                            key={sc.id}
-                            label={sc.name}
-                            nodeKey={`sub_${sc.id}`}
-                            selectedKey={selectedKey}
-                            onSelect={(key) => {
-                              setSelectedKey(key);
-                              if (childCats.length === 0) setDrawerOpen(false);
-                            }}
-                            depth={1}>
-                            {childCats.map((cc) => (
-                              <TreeNode
-                                key={cc.id}
-                                label={cc.name}
-                                nodeKey={`child_${cc.id}`}
-                                selectedKey={selectedKey}
-                                onSelect={(key) => {
-                                  setSelectedKey(key);
-                                  setDrawerOpen(false);
-                                }}
-                                depth={2}
-                              />
-                            ))}
-                          </TreeNode>
-                        );
-                      })}
-                    </TreeNode>
-                  );
-                })}
-              </nav>
+              <SidebarContent {...sidebarProps} />
             </div>
           </div>
         </div>
@@ -2076,622 +2122,3 @@ const Palaeographical = () => {
 
 export default Palaeographical;
 
-// import { Link } from "react-router-dom";
-// import React, { useEffect, useState } from "react";
-// import axios from "axios";
-
-// // ── Accordion Component ───────────────────────────────────────────────────────
-// const AccordionSection = ({ title, children, defaultOpen = false }) => {
-//   const [isOpen, setIsOpen] = useState(defaultOpen);
-
-//   return (
-//     <div className="mb-8 border border-gray-200 rounded-lg overflow-hidden">
-//       <button
-//         onClick={() => setIsOpen(!isOpen)}
-//         className="w-full flex text-start justify-between p-4 bg-[#50644b] hover:bg-[#4f5e4f]/90 transition-colors"
-//       >
-//         <span className="text-xl font-semibold text-white">{title}</span>
-//         <span className="text-2xl text-white font-bold">{isOpen ? "−" : "+"}</span>
-//       </button>
-//       {isOpen && <div className="p-4">{children}</div>}
-//     </div>
-//   );
-// };
-
-// // ── CharacterBox Component ────────────────────────────────────────────────────
-// const CharacterBox = ({ image, label, link, hasData = true }) => {
-//   const [imgError, setImgError] = useState(false);
-//   const imageBaseUrl = import.meta.env.VITE_IMAGE_PATH;
-
-//   if (!hasData) {
-//     return (
-//       <div className="inline-block border border-black mb-2 w-[140px]">
-//         <div className="min-h-[140px] flex flex-col">
-//           <div className="flex-1 p-4 text-center">
-//             <p className="mt-2 text-sm text-gray-400 break-words">{label}</p>
-//           </div>
-//         </div>
-//       </div>
-//     );
-//   }
-
-//   const imageUrl = image
-//     ? image.startsWith("http")
-//       ? image
-//       : `${imageBaseUrl}/${image}`
-//     : null;
-
-//   return (
-//     <div className="inline-block border border-black mb-2 w-[140px]">
-//       <div className="min-h-[140px] flex flex-col">
-//         <div className="flex-1 p-4 text-center">
-//           {imageUrl && !imgError ? (
-//             <img
-//               src={imageUrl}
-//               className="w-16 mx-auto h-16 object-contain"
-//               alt={label}
-//               onError={() => setImgError(true)}
-//             />
-//           ) : (
-//             <div className="w-16 mx-auto h-16 flex items-center justify-center text-gray-400 text-sm">
-//               {label}
-//             </div>
-//           )}
-//           {link ? (
-//             <a href={link} target="_blank" rel="noopener noreferrer">
-//               <p className="mt-2 text-sm hover:text-blue-700 break-words">{label}</p>
-//             </a>
-//           ) : (
-//             <p className="mt-2 text-sm break-words">{label}</p>
-//           )}
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// // ── Helper: extract trailing number from image_name (e.g. "INSN1L545_28" → 28) ──
-// const extractSuffixNumber = (imageName) => {
-//   if (!imageName) return null;
-//   const match = imageName.match(/_(\d+)$/);
-//   return match ? parseInt(match[1], 10) : null;
-// };
-
-// // ── Helper: sort numeral items by their image_name suffix number ──────────────
-// const sortNumeralItems = (items) =>
-//   [...items].sort((a, b) => {
-//     const numA = extractSuffixNumber(a.image_name) ?? Infinity;
-//     const numB = extractSuffixNumber(b.image_name) ?? Infinity;
-//     return numA - numB;
-//   });
-
-// // ── NumeralBox Component ──────────────────────────────────────────────────────
-// const NumeralBox = ({ item }) => {
-//   const [imgError, setImgError] = useState(false);
-//   const imageBaseUrl = import.meta.env.VITE_IMAGE_PATH;
-//   const imageUrl = item.image
-//     ? item.image.startsWith("http")
-//       ? item.image
-//       : `${imageBaseUrl}/${item.image}`
-//     : null;
-
-//   // Extract the number from image_name suffix (e.g. "INSN1L545_28" → 28)
-//   const displayNumber = extractSuffixNumber(item.image_name);
-
-//   return (
-//     <div className="border border-black w-[140px] min-h-[140px] p-2 text-center flex flex-col justify-between">
-//       <div className="flex flex-col justify-end gap-2 h-[80px]">
-//         {imageUrl && !imgError ? (
-//           <img
-//             src={imageUrl}
-//             className="w-16 mx-auto h-16 object-contain"
-//             alt={item.image_name}
-//             onError={() => setImgError(true)}
-//           />
-//         ) : (
-//           <div className="w-16 mx-auto h-16 flex items-center justify-center text-gray-400 text-sm">
-//             In preparation
-//           </div>
-//         )}
-//         {item.url ? (
-//           <a href={item.url} target="_blank" rel="noopener noreferrer">
-//             <p className="text-xs hover:text-blue-700 break-words">{item.image_name}</p>
-//           </a>
-//         ) : (
-//           <p className="text-xs break-words">{item.image_name}</p>
-//         )}
-//       </div>
-//       {/* Number extracted from image_name suffix */}
-//       <p className="text-sm border-t border-black py-1">
-//         {displayNumber !== null ? displayNumber : "—"}
-//       </p>
-//     </div>
-//   );
-// };
-
-// // ── Main Component ────────────────────────────────────────────────────────────
-// const Palaeographical = () => {
-//   const [palaeographical, setPalaeographical] = useState([]);
-//   const [subCategory, setSubCategory] = useState([]);
-//   const [childCategory, setChildCategory] = useState([]);
-//   const [category, setCategory] = useState([]);
-//   const [filters, setFilters] = useState({
-//     period: "All",
-//     script: "All",
-//     varna: "All",
-//     symbols: "All",
-//     citra: "All",
-//   });
-
-//   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
-//   useEffect(() => {
-//     const fetchPalaeographical = async () => {
-//       try {
-//         const response = await axios.get(`${API_BASE_URL}/palaeographical`);
-//         setPalaeographical(response.data.data);
-//       } catch (error) {
-//         console.error("fetching error", error);
-//       }
-//     };
-//     fetchPalaeographical();
-//   }, []);
-
-//   useEffect(() => {
-//     const fetchSubCategory = async () => {
-//       try {
-//         const response = await axios.get(`${API_BASE_URL}/sub_categories`);
-//         setSubCategory(response.data.data);
-//       } catch (error) {
-//         console.error("fetching error", error);
-//       }
-//     };
-//     fetchSubCategory();
-//   }, []);
-
-//   useEffect(() => {
-//     const fetchCategory = async () => {
-//       try {
-//         const response = await axios.get(`${API_BASE_URL}/categories`);
-//         setCategory(response.data.data);
-//       } catch (error) {
-//         console.error("fetching error", error);
-//       }
-//     };
-//     fetchCategory();
-//   }, []);
-
-//   useEffect(() => {
-//     const fetchChildCategory = async () => {
-//       try {
-//         const response = await axios.get(`${API_BASE_URL}/child_categories`);
-//         setChildCategory(response.data.data);
-//       } catch (error) {
-//         console.error("fetching error", error);
-//       }
-//     };
-//     fetchChildCategory();
-//   }, []);
-
-//   // ── Helpers ──────────────────────────────────────────────────────────────────
-
-//   const sortedCategories = [...category].sort(
-//     (a, b) => new Date(a.created_at) - new Date(b.created_at)
-//   );
-
-//   const unique = (key) => [
-//     "All",
-//     ...new Set(palaeographical.map((i) => i[key]).filter(Boolean)),
-//   ];
-
-//   const filteredPalaeographical = palaeographical.filter((item) => {
-//     if (filters.period !== "All" && item.period !== filters.period) return false;
-//     if (filters.script !== "All" && item.script !== filters.script) return false;
-//     if (filters.varna !== "All" && item.varna !== filters.varna) return false;
-//     if (filters.symbols !== "All" && item.symbols !== filters.symbols) return false;
-//     if (filters.citra !== "All" && item.citra !== filters.citra) return false;
-//     return true;
-//   });
-
-//   const sameId = (left, right) =>
-//     left !== null &&
-//     left !== undefined &&
-//     right !== null &&
-//     right !== undefined &&
-//     String(left) === String(right);
-
-//   const getSubCategoriesForCategory = (catId) =>
-//     subCategory
-//       .filter((sc) => sameId(sc.category_id, catId))
-//       .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-
-//   const getChildCategoriesForSubCategory = (subCatId) =>
-//     [
-//       ...childCategory.filter((cc) => sameId(cc.sub_category_id, subCatId)),
-//       ...filteredPalaeographical
-//         .filter((item) => sameId(item.sub_category_id, subCatId) && item.child_category)
-//         .map((item) => item.child_category),
-//     ]
-//       .filter(
-//         (cc, index, arr) =>
-//           cc?.id !== undefined &&
-//           arr.findIndex((candidate) => sameId(candidate?.id, cc.id)) === index
-//       )
-//       .sort((a, b) => new Date(a.created_at || 0) - new Date(b.created_at || 0));
-
-//   const getItemsForSubCategory = (subCatId) =>
-//     filteredPalaeographical.filter((p) => sameId(p.sub_category_id, subCatId));
-
-//   const getItemsForChildCategory = (childCatId) =>
-//     filteredPalaeographical.filter(
-//       (p) => sameId(p.child_category_id, childCatId) || sameId(p.child_category?.id, childCatId)
-//     );
-
-//   const getDirectItemsForCategory = (catId) =>
-//     filteredPalaeographical
-//       .filter(
-//         (item) =>
-//           sameId(item.category_id, catId) &&
-//           (item.sub_category_id === null || item.sub_category_id === undefined) &&
-//           (item.child_category_id === null || item.child_category_id === undefined)
-//       )
-//       .sort((a, b) => new Date(a.created_at || 0) - new Date(b.created_at || 0));
-
-//   const handleFilterChange = (key, value) =>
-//     setFilters((prev) => ({ ...prev, [key]: value }));
-
-//   const resetFilters = () =>
-//     setFilters({ period: "All", script: "All", varna: "All", symbols: "All", citra: "All" });
-
-//   // ── Render ───────────────────────────────────────────────────────────────────
-//   return (
-//     <>
-//       {/* Hero Banner */}
-//       <div className="relative h-[50vh] mt-12 flex items-center justify-center">
-//         <img
-//           src="images/inscription/main.jpg"
-//           alt="Inscriptions"
-//           className="absolute inset-0 w-full h-full object-cover"
-//         />
-//         <div className="absolute inset-0 bg-black/40"></div>
-//         <div className="absolute top-16 left-6 z-10 text-white p-3 flex items-center gap-2 text-base leading-6 tracking-wide">
-//           <Link to="/" className="hover:underline">
-//             Home
-//           </Link>
-//           <span>/</span>
-//           <span className="opacity-80"> Palaeographical Database</span>
-//         </div>
-//         <h1 className="relative px-4 z-10 text-4xl md:text-5xl text-white font-semibold">
-//           Palaeographical Database of Inscriptions
-//         </h1>
-//       </div>
-
-//       {/* Intro + Filters */}
-//       <div className="max-w-7xl px-4 mx-auto py-24">
-//         <h2 className="text-3xl font-semibold mb-4">
-//           Database of Palaeographical and Visual Features of Inscriptions
-//         </h2>
-//         <p className="text-lg mb-8 text-justify">
-//           Inscriptions are among the earliest forms of writing in human civilisation. This initiative
-//           aims to bring together palaeographic research to build a comprehensive, evolving repository
-//           of inscriptional features from Nepal across key historical periods, including the Licchavi,
-//           Malla, and Shah/Rana eras. The project enables both scholars and the wider public to
-//           explore, compare, and analyse inscriptions from the region. By examining dated and undated
-//           materials side by side, readers can better identify stylistic characteristics and historical
-//           patterns. Beyond textual analysis, the study also sheds light on craftsmanship, production
-//           techniques, usage contexts, and intellectual traditions, with particular attention to the
-//           evolution of scripts and visual paratextual elements.
-//         </p>
-
-//         <div className="max-w-3xl mx-auto px-4 pb-16 text-center text-sm sm:text-sm  leading-relaxed">
-//           <p className="font-medium break-words">
-//             नातिकृशैर्नातिदीर्घैर्ह्रस्वदीर्घादिलक्षितैः ।
-//           </p>
-//           <p className="font-medium break-words ">
-//             सम्पूर्णावयवैर्मात्राबिन्दुसंयोगलक्षितै: ॥
-//           </p>
-
-//           <p>
-//             nātikṛśair nātidīrghair hrasvadīrghādilakṣitaiḥ |
-//           </p>
-//           <p>
-//             sampūrṇāvayavair mātrābindusaṃyogalakṣitaiḥ ||
-//           </p>
-
-//           <p className="mt-2">
-//             [The letters should not be] too broad or too thin,   <br className="hidden sm:block" />
-//             the short and long vowel signs [should be] marked [properly],   <br className="hidden sm:block" />
-//             all parts [of the letters should be] inscribed [fully],   <br className="hidden sm:block" />
-//             [and] the dots and conjunctions [should be] marked [clearly].
-//           </p>
-
-//           <p className="text-xs mt-3  text-gray-600">
-//             (<span className="italic">Hayaśīrṣapañcarātra,</span> 2.31.11)   </p>
-//           <div className="mt-4 flex justify-center">
-//             <div className="cursor-pointer w-full sm:w-3/4">
-//               <audio controls controlsList="nodownload" className="w-full">
-//                 <source src="/images/database.wav" type="audio/mpeg" />
-//                 Your browser does not support the audio element.
-//               </audio>
-//             </div>
-//           </div>
-//         </div>
-
-//         <h2 className="mb-8 text-2xl text-center">
-//          Our database is under development and continues to expand as new materials are added on ongoing basis. Visit and explore the collection!
-//         </h2>
-
-//         {/* Filters */}
-//         <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-12">
-//           <div>
-//             <label className="block text-sm font-medium mb-2">Period</label>
-//             <select
-//               className="border cursor-pointer p-3 rounded w-full"
-//               value={filters.period}
-//               onChange={(e) => handleFilterChange("period", e.target.value)}
-//             >
-//               {unique("period").map((v) => (
-//                 <option key={v} value={v}>
-//                   {v === "All" ? "All Periods" : v}
-//                 </option>
-//               ))}
-//             </select>
-//           </div>
-
-//           <div>
-//             <label className="block text-sm font-medium mb-2">Script</label>
-//             <select
-//               className="border cursor-pointer p-3 rounded w-full"
-//               value={filters.script}
-//               onChange={(e) => handleFilterChange("script", e.target.value)}
-//             >
-//               {unique("script").map((v) => (
-//                 <option key={v} value={v}>
-//                   {v === "All" ? "All Scripts" : v}
-//                 </option>
-//               ))}
-//             </select>
-//           </div>
-
-//           <div>
-//             <label className="block text-sm font-medium mb-2 ">Varṇa</label>
-//             <select
-//               className="border cursor-pointer p-3  rounded w-full"
-//               value={filters.varna}
-//               onChange={(e) => handleFilterChange("varna", e.target.value)}
-//             >
-//               {unique("varna").map((v) => (
-//                 <option key={v} value={v}>
-//                   {v === "All" ? "All Varṇa" : v}
-//                 </option>
-//               ))}
-//             </select>
-//           </div>
-
-//           <div>
-//             <label className="block text-sm font-medium mb-2">Symbols, Signs</label>
-//             <select
-//               className="border cursor-pointer p-3  rounded w-full"
-//               value={filters.symbols}
-//               onChange={(e) => handleFilterChange("symbols", e.target.value)}
-//             >
-//               {unique("symbols").map((v) => (
-//                 <option key={v} value={v}>
-//                   {v === "All" ? "All Symbols" : v}
-//                 </option>
-//               ))}
-//             </select>
-//           </div>
-
-//           <div>
-//             <label className="block text-sm font-medium mb-2">
-//               <span className="">Citra</span> (figures)
-//             </label>
-//             <select
-//               className="border cursor-pointer p-3 w-full rounded"
-//               value={filters.citra}
-//               onChange={(e) => handleFilterChange("citra", e.target.value)}
-//             >
-//               {unique("citra").map((v) => (
-//                 <option key={v} value={v}>
-//                   {v === "All" ? "All Citra" : v}
-//                 </option>
-//               ))}
-//             </select>
-//           </div>
-//         </div>
-
-//         <div className="flex justify-end">
-//           <button
-//             onClick={resetFilters}
-//             className="px-6 py-2 border cursor-pointer rounded hover:bg-gray-100 transition"
-//           >
-//             Reset Filters
-//           </button>
-//         </div>
-//       </div>
-
-//       {/* Dynamic Accordions */}
-//       <div className="max-w-7xl px-4 mx-auto">
-//         {sortedCategories.map((cat) => {
-//           const subCats = getSubCategoriesForCategory(cat.id);
-//           const isNumerals =
-//             cat.name.toLowerCase().includes("aṅka") ||
-//             cat.name.toLowerCase().includes("anka") ||
-//             cat.name.toLowerCase().includes("numeral");
-
-//           // ── Aṅka (numerals) — sub-categories with NumeralBox items ─────
-//           if (isNumerals) {
-//             // If sub-categories exist, render each as a nested accordion with NumeralBox items
-//             if (subCats.length > 0) {
-//               return (
-//                 <AccordionSection key={cat.id} title={cat.name}>
-//                   {subCats.map((sc) => {
-//                     const childCats = getChildCategoriesForSubCategory(sc.id);
-//                     const items = sortNumeralItems(getItemsForSubCategory(sc.id));
-
-//                     if (childCats.length > 0) {
-//                       return (
-//                         <AccordionSection key={sc.id} title={sc.name}>
-//                           {childCats.map((cc) => {
-//                             const childItems = sortNumeralItems(getItemsForChildCategory(cc.id));
-
-//                             return (
-//                               <AccordionSection key={cc.id} title={cc.name}>
-//                                 <div className="flex flex-wrap gap-2">
-//                                   {childItems.length > 0 ? (
-//                                     childItems.map((item) => (
-//                                       <NumeralBox key={item.id} item={item} />
-//                                     ))
-//                                   ) : (
-//                                     <CharacterBox
-//                                       label={`${cc.name} (In preparation)`}
-//                                       hasData={false}
-//                                     />
-//                                   )}
-//                                 </div>
-//                               </AccordionSection>
-//                             );
-//                           })}
-//                         </AccordionSection>
-//                       );
-//                     }
-
-//                     return (
-//                       <AccordionSection key={sc.id} title={sc.name}>
-//                         <div className="flex flex-wrap gap-2">
-//                           {items.length > 0 ? (
-//                             items.map((item) => (
-//                               <NumeralBox key={item.id} item={item} />
-//                             ))
-//                           ) : (
-//                             <CharacterBox
-//                               label={`${sc.name} (In preparation)`}
-//                               hasData={false}
-//                             />
-//                           )}
-//                         </div>
-//                       </AccordionSection>
-//                     );
-//                   })}
-//                 </AccordionSection>
-//               );
-//             }
-
-//             // Fallback: no sub-categories yet, render flat with NumeralBox
-//             const numeralItems = sortNumeralItems(
-//               filteredPalaeographical.filter((p) => sameId(p.category_id, cat.id))
-//             );
-
-//             return (
-//               <AccordionSection key={cat.id} title={cat.name}>
-//                 <div className="flex flex-wrap gap-2">
-//                   {numeralItems.length > 0 ? (
-//                     numeralItems.map((item) => (
-//                       <NumeralBox key={item.id} item={item} />
-//                     ))
-//                   ) : (
-//                     <CharacterBox label="In preparation" hasData={false} />
-//                   )}
-//                 </div>
-//               </AccordionSection>
-//             );
-//           }
-
-//           // ── Categories with existing sub-categories — render nested accordions ──
-//           if (subCats.length > 0) {
-//             return (
-//               <AccordionSection key={cat.id} title={cat.name}>
-//                 {subCats.map((sc) => {
-//                   const childCats = getChildCategoriesForSubCategory(sc.id);
-//                   const items = getItemsForSubCategory(sc.id);
-
-//                   if (childCats.length > 0) {
-//                     return (
-//                       <AccordionSection key={sc.id} title={sc.name}>
-//                         {childCats.map((cc) => {
-//                           const childItems = getItemsForChildCategory(cc.id);
-
-//                           return (
-//                             <AccordionSection key={cc.id} title={cc.name}>
-//                               <div className="flex flex-wrap gap-2">
-//                                 {childItems.length > 0 ? (
-//                                   childItems.map((item) => (
-//                                     <CharacterBox
-//                                       key={item.id}
-//                                       image={item.image}
-//                                       label={item.image_name}
-//                                       link={item.url || null}
-//                                       hasData={true}
-//                                     />
-//                                   ))
-//                                 ) : (
-//                                   <CharacterBox
-//                                     label={`${cc.name} (In preparation)`}
-//                                     hasData={false}
-//                                   />
-//                                 )}
-//                               </div>
-//                             </AccordionSection>
-//                           );
-//                         })}
-//                       </AccordionSection>
-//                     );
-//                   }
-
-//                   return (
-//                     <AccordionSection key={sc.id} title={sc.name}>
-//                       <div className="flex flex-wrap gap-2">
-//                         {items.length > 0 ? (
-//                           items.map((item) => (
-//                             <CharacterBox
-//                               key={item.id}
-//                               image={item.image}
-//                               label={item.image_name}
-//                               link={item.url || null}
-//                               hasData={true}
-//                             />
-//                           ))
-//                         ) : (
-//                           <CharacterBox
-//                             label={`${sc.name} (In preparation)`}
-//                             hasData={false}
-//                           />
-//                         )}
-//                       </div>
-//                     </AccordionSection>
-//                   );
-//                 })}
-//               </AccordionSection>
-//             );
-//           }
-
-//           const directItems = getDirectItemsForCategory(cat.id);
-
-//           // ── Categories with no sub-categories yet — render direct items if available ──
-//           return (
-//             <AccordionSection key={cat.id} title={cat.name}>
-//               <div className="flex flex-wrap gap-2">
-//                 {directItems.length > 0 ? (
-//                   directItems.map((item) => (
-//                     <CharacterBox
-//                       key={item.id}
-//                       image={item.image}
-//                       label={item.image_name || item.name || "Untitled"}
-//                       link={item.url || null}
-//                       hasData={true}
-//                     />
-//                   ))
-//                 ) : (
-//                   <CharacterBox label="In preparation" hasData={false} />
-//                 )}
-//               </div>
-//             </AccordionSection>
-//           );
-//         })}
-//       </div>
-//     </>
-//   );
-// };
-
-// export default Palaeographical;
