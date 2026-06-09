@@ -493,12 +493,13 @@ const InscriptionsDetails = () => {
   const [textScript, setTextScript] = useState("Roman");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
     const fetchInscription = async () => {
       try {
         const response = await axios.get(
-          `https://inscriptionbackend.saitsolution.com.np/api/${slug}/details`,
+          `${API_BASE_URL}/${slug}/details`,
         );
         const data = response.data.data;
 

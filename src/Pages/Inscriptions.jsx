@@ -259,6 +259,7 @@ import axios from "axios";
 const Inscriptions = () => {
   const [inscriptions, setInscriptions] = useState([]);
   const [filtered, setFiltered] = useState([]);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   // ✅ ONLY SORT STATE (filters removed)
   const [dateSort, setDateSort] = useState("oldest");
@@ -270,7 +271,7 @@ const Inscriptions = () => {
     const fetchInscription = async () => {
       try {
         const response = await axios.get(
-          "https://inscriptionbackend.saitsolution.com.np/api/inscriptions",
+          `${API_BASE_URL}/inscriptions`,
         );
 
         const data = response.data;

@@ -338,12 +338,13 @@ const About = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const imgurl = import.meta.env.VITE_IMAGE_PATH;
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
     const fetchInscription = async () => {
       try {
         const response = await axios.get(
-          "https://inscriptionbackend.saitsolution.com.np/api/inscriptions",
+          `${API_BASE_URL}/inscriptions`,
         );
         const data = response.data;
 
