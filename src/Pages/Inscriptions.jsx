@@ -404,9 +404,9 @@ const Inscriptions = () => {
                       src={`${imgurl}/${pub.images[getPosterImageIndex(pub)]?.image_path}`}
                       className="w-full h-64 object-cover transition-transform duration-500 ease-in-out group-hover:scale-105"
                       alt={pub.title}
-                      onError={(e) =>
-                        (e.target.src = "images/inscription/placeholder.jpg")
-                      }
+                      // onError={(e) =>
+                      //   (e.target.src = "images/inscription/placeholder.jpg")
+                      // }
                     />
                   ) : (
                     <div className="w-full h-64 bg-gray-200 flex items-center justify-center">
