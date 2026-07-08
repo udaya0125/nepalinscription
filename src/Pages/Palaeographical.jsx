@@ -1100,1053 +1100,6 @@
 
 
 
-// import { Link } from "react-router-dom";
-// import React, { useEffect, useState, useRef } from "react";
-// import axios from "axios";
-
-// // ── CharacterBox Component ────────────────────────────────────────────────────
-// const CharacterBox = ({ image, label, link, hasData = true }) => {
-//   const [imgError, setImgError] = useState(false);
-//   const imageBaseUrl = import.meta.env.VITE_IMAGE_PATH;
-
-//   if (!hasData) {
-//     return (
-//       <div className="inline-block border border-black mb-2 w-[120px] sm:w-[140px]">
-//         <div className="min-h-[120px] sm:min-h-[140px] flex flex-col">
-//           <div className="flex-1 p-3 sm:p-4 text-center">
-//             <p className="mt-2 text-xs sm:text-sm text-gray-400 break-words">
-//               {label}
-//             </p>
-//           </div>
-//         </div>
-//       </div>
-//     );
-//   }
-
-//   const imageUrl = image
-//     ? image.startsWith("http")
-//       ? image
-//       : `${imageBaseUrl}/${image}`
-//     : null;
-
-//   return (
-//     <div className="inline-block border border-black mb-2 w-[120px] sm:w-[140px]">
-//       <div className="min-h-[120px] sm:min-h-[140px] flex flex-col">
-//         <div className="flex-1 p-3 sm:p-4 text-center">
-//           {/* {imageUrl && !imgError ? (
-//             <img
-//               src={imageUrl}
-//               className="w-12 sm:w-16 mx-auto h-12 sm:h-16 object-contain"
-//               alt={label}
-//               onError={() => setImgError(true)}
-//             /> */}
-//             {imageUrl && !imgError ? (
-//   <div className="w-14 sm:w-16 h-14 sm:h-16 mx-auto flex items-center justify-center">
-//     <img
-//       src={imageUrl}
-//       className="max-w-full max-h-full object-contain"
-//       alt={label}
-//       onError={() => setImgError(true)}
-//     />
-//   </div>
-//           ) : (
-//             <div className="w-12 sm:w-16 mx-auto h-12 sm:h-16 flex items-center justify-center text-gray-400 text-xs sm:text-sm">
-//               {label}
-//             </div>
-//           )}
-//           {link ? (
-//             <a href={link} target="_blank" rel="noopener noreferrer">
-//               <p className="mt-2 text-xs sm:text-sm hover:text-blue-700 break-words">
-//                 {label}
-//               </p>
-//             </a>
-//           ) : (
-//             <p className="mt-2 text-xs sm:text-sm break-words">{label}</p>
-//           )}
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// // ── Helper: extract trailing number from image_name ──────────────────────────
-// const extractSuffixNumber = (imageName) => {
-//   if (!imageName) return null;
-//   const match = imageName.match(/_(\d+)$/);
-//   return match ? parseInt(match[1], 10) : null;
-// };
-
-// const sortNumeralItems = (items) =>
-//   [...items].sort((a, b) => {
-//     const numA = extractSuffixNumber(a.image_name) ?? Infinity;
-//     const numB = extractSuffixNumber(b.image_name) ?? Infinity;
-//     return numA - numB;
-//   });
-
-// // ── NumeralBox Component ──────────────────────────────────────────────────────
-// const NumeralBox = ({ item }) => {
-//   const [imgError, setImgError] = useState(false);
-//   const imageBaseUrl = import.meta.env.VITE_IMAGE_PATH;
-//   const imageUrl = item.image
-//     ? item.image.startsWith("http")
-//       ? item.image
-//       : `${imageBaseUrl}/${item.image}`
-//     : null;
-
-//   const displayNumber = extractSuffixNumber(item.image_name);
-
-//   return (
-//     <div className="border border-black w-[120px] sm:w-[140px] min-h-[120px] sm:min-h-[140px] p-2 text-center flex flex-col justify-between">
-//       <div className="flex flex-col justify-end gap-2 h-[70px] sm:h-[80px]">
-//         {/* {imageUrl && !imgError ? (
-//           <img
-//             src={imageUrl}
-//             className="w-12 sm:w-16 mx-auto h-12 sm:h-16 object-contain"
-//             alt={item.image_name}
-//             onError={() => setImgError(true)}
-//           /> */}
-//           {imageUrl && !imgError ? (
-//   <div className="w-12 sm:w-16 h-12 sm:h-16 mx-auto flex items-center justify-center">
-//     <img
-//       src={imageUrl}
-//       className="max-w-full max-h-full object-contain"
-//       alt={item.image_name}
-//       onError={() => setImgError(true)}
-//     />
-//   </div>
-//         ) : (
-//           <div className="w-12 sm:w-16 mx-auto h-12 sm:h-16 flex items-center justify-center text-gray-400 text-xs">
-//             In preparation
-//           </div>
-//         )}
-//         {item.url ? (
-//           <a href={item.url} target="_blank" rel="noopener noreferrer">
-//             <p className="text-xs hover:text-blue-700 break-words">
-//               {item.image_name}
-//             </p>
-//           </a>
-//         ) : (
-//           <p className="text-xs break-words">{item.image_name}</p>
-//         )}
-//       </div>
-//       <p className="text-sm border-t border-black py-1">
-//         {displayNumber !== null ? displayNumber : "—"}
-//       </p>
-//     </div>
-//   );
-// };
-
-// // ── Tree Node ─────────────────────────────────────────────────────────────────
-// // const TreeNode = ({
-// //   label,
-// //   nodeKey,
-// //   selectedKey,
-// //   onSelect,
-// //   children,
-// //   depth = 0,
-// // }) => {
-// //   const isSelected = selectedKey === nodeKey;
-// //   const hasChildren = React.Children.count(children) > 0;
-// //   const [open, setOpen] = useState(false);
-
-// //   useEffect(() => {
-// //     if (selectedKey && selectedKey.startsWith(nodeKey + "_")) {
-// //       setOpen(true);
-// //     }
-// //   }, [selectedKey, nodeKey]);
-
-// //   const paddingLeft = depth === 0 ? "pl-3" : depth === 1 ? "pl-5" : "pl-7";
-
-// //   return (
-// //     <div>
-// //       <button
-// //         onClick={() => {
-// //           onSelect(nodeKey);
-// //           if (hasChildren) setOpen((o) => !o);
-// //         }}
-// //         className={`w-full text-left flex items-center justify-between gap-1 py-3 pr-3 text-sm transition-colors ${paddingLeft} ${
-// //           isSelected
-// //             ? "bg-[#3d4f39] text-white font-semibold"
-// //             : "bg-[#50644b] text-white"
-// //         } ${depth === 0 ? "font-semibold text-[0.92rem] mt-1" : "font-normal mt-0.5"}`}>
-// //         <span className="leading-snug">{label}</span>
-// //         {hasChildren && (
-// //           <span className="text-base shrink-0 font-bold leading-none">
-// //             {open ? "−" : "+"}
-// //           </span>
-// //         )}
-// //       </button>
-// //       {hasChildren && open && (
-// //         <div className="border-l border-[#50644b]/30 ml-3 mt-1 space-y-0.5">
-// //           {children}
-// //         </div>
-// //       )}
-// //     </div>
-// //   );
-// // };
-
-// // ── Tree Node ─────────────────────────────────────────────────────────────────
-// const TreeNode = ({
-//   label,
-//   nodeKey,
-//   selectedKey,
-//   onSelect,
-//   children,
-//   depth = 0,
-//   openKeys,
-// }) => {
-//   const isSelected = selectedKey === nodeKey;
-//   const hasChildren = React.Children.count(children) > 0;
-//   const open = openKeys.has(nodeKey);
-
-//   const paddingLeft = depth === 0 ? "pl-4" : depth === 1 ? "pl-7" : "pl-10";
-
-//   const depthStyles =
-//     depth === 0
-//       ? "font-semibold text-[0.93rem] mt-2 py-3"
-//       : depth === 1
-//         ? "font-normal text-[0.87rem] mt-1 py-2.5"
-//         : "font-normal text-[0.83rem] mt-0.5 py-2";
-
-//   return (
-//     <div>
-//       <button
-//         onClick={() => onSelect(nodeKey, { hasChildren, isOpen: open })}
-//         className={`w-full text-left flex items-center justify-between gap-2 pr-4 text-sm transition-colors ${paddingLeft} ${depthStyles} ${
-//           isSelected
-//             ? "bg-[#3d4f39] text-white"
-//             : depth === 0
-//               ? "bg-[#50644b] text-white hover:bg-[#445840]"
-//               : depth === 1
-//                 ? "bg-[#4a5e45] text-white/90 hover:bg-[#3d4f39]"
-//                 : "bg-[#445840] text-white/80 hover:bg-[#3a4c36]"
-//         }`}>
-//         <span className="leading-snug">{label}</span>
-//         {hasChildren && (
-//           <span className="text-sm shrink-0 font-bold leading-none opacity-70">
-//             {open ? "−" : "+"}
-//           </span>
-//         )}
-//       </button>
-//       {hasChildren && open && (
-//         <div className="ml-0 mt-0.5 space-y-0.5 border-l-2 border-white/10 ml-4">
-//           {children}
-//         </div>
-//       )}
-//     </div>
-//   );
-// };
-
-// // ── Sidebar Content (shared between desktop & mobile drawer) ──────────────────
-// const SidebarContent = ({
-//   sortedCategories,
-//   getSubCategoriesForCategory,
-//   getChildCategoriesForSubCategory,
-//   selectedKey,
-//   onSelect,
-//   openKeys,
-// }) => (
-//   <>
-//     <div className="p-3 bg-[#50644b] text-white text-sm font-semibold tracking-wide uppercase rounded-t-lg sticky top-0 z-10">
-//       Categories
-//     </div>
-//     <nav className="py-2 flex flex-col">
-//       {sortedCategories.map((cat) => {
-//         const subCats = getSubCategoriesForCategory(cat.id);
-//         return (
-//           <TreeNode
-//             key={cat.id}
-//             label={cat.name}
-//             nodeKey={`cat_${cat.id}`}
-//             selectedKey={selectedKey}
-//             onSelect={onSelect}
-//             depth={0}
-//             openKeys={openKeys}>
-//             {subCats.map((sc) => {
-//               const childCats = getChildCategoriesForSubCategory(sc.id);
-//               return (
-//                 <TreeNode
-//                   key={sc.id}
-//                   label={sc.name}
-//                   nodeKey={`sub_${sc.id}`}
-//                   selectedKey={selectedKey}
-//                   onSelect={onSelect}
-//                   depth={1}
-//                   openKeys={openKeys}>
-//                   {childCats.map((cc) => (
-//                     <TreeNode
-//                       key={cc.id}
-//                       label={cc.name}
-//                       nodeKey={`child_${cc.id}`}
-//                       selectedKey={selectedKey}
-//                       onSelect={onSelect}
-//                       depth={2}
-//                       openKeys={openKeys}
-//                     />
-//                   ))}
-//                 </TreeNode>
-//               );
-//             })}
-//           </TreeNode>
-//         );
-//       })}
-//     </nav>
-//   </>
-// );
-
-// // ── Main Component ────────────────────────────────────────────────────────────
-// const Palaeographical = () => {
-//   const [palaeographical, setPalaeographical] = useState([]);
-//   const [subCategory, setSubCategory] = useState([]);
-//   const [childCategory, setChildCategory] = useState([]);
-//   const [category, setCategory] = useState([]);
-//   const [selectedKey, setSelectedKey] = useState(null);
-//   const [autoSelected, setAutoSelected] = useState(false);
-//   const [drawerOpen, setDrawerOpen] = useState(false);
-//   const [openKeys, setOpenKeys] = useState(new Set());
-//   const [filters, setFilters] = useState({
-//     period: "All",
-//     script: "All",
-//     varna: "All",
-//     symbols: "All",
-//     citra: "All",
-//   });
-
-//   const drawerRef = useRef(null);
-//   const contentPanelRef = useRef(null);
-//   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
-//   useEffect(() => {
-//     axios
-//       .get(`${API_BASE_URL}/palaeographical`)
-//       .then((r) => setPalaeographical(r.data.data))
-//       .catch(console.error);
-//     axios
-//       .get(`${API_BASE_URL}/sub_categories`)
-//       .then((r) => setSubCategory(r.data.data))
-//       .catch(console.error);
-//     axios
-//       .get(`${API_BASE_URL}/categories`)
-//       .then((r) => setCategory(r.data.data))
-//       .catch(console.error);
-//     axios
-//       .get(`${API_BASE_URL}/child_categories`)
-//       .then((r) => setChildCategory(r.data.data))
-//       .catch(console.error);
-//   }, []);
-
-//   useEffect(() => {
-//     if (!autoSelected && category.length > 0) {
-//       const first = [...category].sort(
-//         (a, b) => new Date(a.created_at) - new Date(b.created_at),
-//       )[0];
-//       setSelectedKey(`cat_${first.id}`);
-//       setAutoSelected(true);
-//     }
-//   }, [category, autoSelected]);
-
-//   // Close drawer on outside click
-//   useEffect(() => {
-//     const handleOutside = (e) => {
-//       if (
-//         drawerOpen &&
-//         drawerRef.current &&
-//         !drawerRef.current.contains(e.target)
-//       ) {
-//         setDrawerOpen(false);
-//       }
-//     };
-//     document.addEventListener("mousedown", handleOutside);
-//     return () => document.removeEventListener("mousedown", handleOutside);
-//   }, [drawerOpen]);
-
-//   // Prevent body scroll when drawer is open
-//   useEffect(() => {
-//     if (drawerOpen) {
-//       document.body.style.overflow = "hidden";
-//     } else {
-//       document.body.style.overflow = "";
-//     }
-//     return () => {
-//       document.body.style.overflow = "";
-//     };
-//   }, [drawerOpen]);
-
-//   const sameId = (l, r) => l != null && r != null && String(l) === String(r);
-
-//   const sortedCategories = [...category].sort(
-//     (a, b) => new Date(a.created_at) - new Date(b.created_at),
-//   );
-
-//   const unique = (key) => [
-//     "All",
-//     ...new Set(palaeographical.map((i) => i[key]).filter(Boolean)),
-//   ];
-
-//   const filteredPalaeographical = palaeographical.filter((item) => {
-//     if (filters.period !== "All" && item.period !== filters.period)
-//       return false;
-//     if (filters.script !== "All" && item.script !== filters.script)
-//       return false;
-//     if (filters.varna !== "All" && item.varna !== filters.varna) return false;
-//     if (filters.symbols !== "All" && item.symbols !== filters.symbols)
-//       return false;
-//     if (filters.citra !== "All" && item.citra !== filters.citra) return false;
-//     return true;
-//   });
-
-//   const getSubCategoriesForCategory = (catId) =>
-//     subCategory
-//       .filter((sc) => sameId(sc.category_id, catId))
-//       .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-
-//   const getChildCategoriesForSubCategory = (subCatId) =>
-//     [
-//       ...childCategory.filter((cc) => sameId(cc.sub_category_id, subCatId)),
-//       ...filteredPalaeographical
-//         .filter(
-//           (item) =>
-//             sameId(item.sub_category_id, subCatId) && item.child_category,
-//         )
-//         .map((item) => item.child_category),
-//     ]
-//       .filter(
-//         (cc, idx, arr) =>
-//           cc?.id !== undefined &&
-//           arr.findIndex((c) => sameId(c?.id, cc.id)) === idx,
-//       )
-//       .sort(
-//         (a, b) => new Date(a.created_at || 0) - new Date(b.created_at || 0),
-//       );
-
-//   const isNumeralCat = (cat) =>
-//     cat.name.toLowerCase().includes("aṅka") ||
-//     cat.name.toLowerCase().includes("anka") ||
-//     cat.name.toLowerCase().includes("numeral");
-
-//   // const resolveContent = (key) => {
-//   //   if (!key) return null;
-
-//   //   if (key.startsWith("cat_")) {
-//   //     const catId = key.replace("cat_", "");
-//   //     const cat = category.find((c) => String(c.id) === catId);
-//   //     const directItems = filteredPalaeographical
-//   //       .filter(
-//   //         (item) =>
-//   //           sameId(item.category_id, catId) &&
-//   //           item.sub_category_id == null &&
-//   //           item.child_category_id == null,
-//   //       )
-//   //       .sort(
-//   //         (a, b) => new Date(a.created_at || 0) - new Date(b.created_at || 0),
-//   //       );
-
-//   //     return {
-//   //       title: cat?.name,
-//   //       items: directItems,
-//   //       isNumeral: cat ? isNumeralCat(cat) : false,
-//   //     };
-//   //   }
-
-//   //   if (key.startsWith("sub_")) {
-//   //     const subId = key.replace("sub_", "");
-//   //     const sc = subCategory.find((s) => String(s.id) === subId);
-//   //     const parentCat = category.find((c) => sameId(c.id, sc?.category_id));
-//   //     const childCats = getChildCategoriesForSubCategory(subId);
-
-//   //     const items =
-//   //       childCats.length === 0
-//   //         ? filteredPalaeographical.filter((p) =>
-//   //             sameId(p.sub_category_id, subId),
-//   //           )
-//   //         : [];
-
-//   //     return {
-//   //       title: sc?.name,
-//   //       items,
-//   //       isNumeral: parentCat ? isNumeralCat(parentCat) : false,
-//   //       hint:
-//   //         childCats.length > 0
-//   //           ? "Select a sub-section from the left to view items."
-//   //           : null,
-//   //     };
-//   //   }
-
-//   //   if (key.startsWith("child_")) {
-//   //     const childId = key.replace("child_", "");
-//   //     const cc =
-//   //       childCategory.find((c) => String(c.id) === childId) ||
-//   //       filteredPalaeographical.find((p) =>
-//   //         sameId(p.child_category?.id, childId),
-//   //       )?.child_category;
-
-//   //     const parentSub = subCategory.find((s) =>
-//   //       sameId(s.id, cc?.sub_category_id),
-//   //     );
-//   //     const parentCat = category.find((c) =>
-//   //       sameId(c.id, parentSub?.category_id),
-//   //     );
-
-//   //     const items = filteredPalaeographical.filter(
-//   //       (p) =>
-//   //         sameId(p.child_category_id, childId) ||
-//   //         sameId(p.child_category?.id, childId),
-//   //     );
-
-//   //     return {
-//   //       title: cc?.name,
-//   //       items,
-//   //       isNumeral: parentCat ? isNumeralCat(parentCat) : false,
-//   //     };
-//   //   }
-
-//   //   return null;
-//   // };
-
-//   const getOpenPathForNode = (key, options = {}) => {
-//     if (!key) return [];
-
-//     if (key.startsWith("cat_")) {
-//       const catId = key.replace("cat_", "");
-//       const hasSubCategories = getSubCategoriesForCategory(catId).length > 0;
-//       return options.hasChildren ?? hasSubCategories ? [key] : [];
-//     }
-
-//     if (key.startsWith("sub_")) {
-//       const subId = key.replace("sub_", "");
-//       const currentSubCategory = subCategory.find((item) => sameId(item.id, subId));
-
-//       if (!currentSubCategory) return [];
-
-//       const hasChildCategories =
-//         options.hasChildren ?? getChildCategoriesForSubCategory(subId).length > 0;
-//       const path = [`cat_${currentSubCategory.category_id}`];
-
-//       if (hasChildCategories) {
-//         path.push(key);
-//       }
-
-//       return path;
-//     }
-
-//     if (key.startsWith("child_")) {
-//       const childId = key.replace("child_", "");
-//       const currentChildCategory =
-//         childCategory.find((item) => sameId(item.id, childId)) ||
-//         filteredPalaeographical.find((item) => sameId(item.child_category?.id, childId))
-//           ?.child_category;
-//       const parentSubId = currentChildCategory?.sub_category_id;
-
-//       if (!parentSubId) return [];
-
-//       const parentSubCategory = subCategory.find((item) => sameId(item.id, parentSubId));
-
-//       if (!parentSubCategory) return [];
-
-//       return [`cat_${parentSubCategory.category_id}`, `sub_${parentSubCategory.id}`];
-//     }
-
-//     return [];
-//   };
-
-//   const getClosedPathForNode = (key) => {
-//     if (!key) return [];
-
-//     if (key.startsWith("cat_")) {
-//       return [];
-//     }
-
-//     if (key.startsWith("sub_")) {
-//       const subId = key.replace("sub_", "");
-//       const currentSubCategory = subCategory.find((item) => sameId(item.id, subId));
-
-//       return currentSubCategory ? [`cat_${currentSubCategory.category_id}`] : [];
-//     }
-
-//     if (key.startsWith("child_")) {
-//       const childId = key.replace("child_", "");
-//       const currentChildCategory =
-//         childCategory.find((item) => sameId(item.id, childId)) ||
-//         filteredPalaeographical.find((item) => sameId(item.child_category?.id, childId))
-//           ?.child_category;
-//       const parentSubId = currentChildCategory?.sub_category_id;
-
-//       if (!parentSubId) return [];
-
-//       const parentSubCategory = subCategory.find((item) => sameId(item.id, parentSubId));
-
-//       return parentSubCategory
-//         ? [`cat_${parentSubCategory.category_id}`, `sub_${parentSubCategory.id}`]
-//         : [];
-//     }
-
-//     return [];
-//   };
-
-//   // const scrollToTop = () => {
-//   //   window.scrollTo({ top: 1200, behavior: "smooth" });
-//   // };
-
-//   const resolveContent = (key) => {
-//     if (!key) return null;
-
-//     if (key.startsWith("cat_")) {
-//       const catId = key.replace("cat_", "");
-//       const cat = category.find((c) => String(c.id) === catId);
-//       const subCats = getSubCategoriesForCategory(catId);
-
-//       // If category has sub-categories → show hint only, never show category-level items
-//       if (subCats.length > 0) {
-//         return {
-//           title: cat?.name,
-//           items: [],
-//           isNumeral: cat ? isNumeralCat(cat) : false,
-//           hint: "Select a sub-section from the left to view items.",
-//         };
-//       }
-
-//       // No sub-categories → show direct items
-//       const directItems = filteredPalaeographical
-//         .filter(
-//           (item) =>
-//             sameId(item.category_id, catId) &&
-//             item.sub_category_id == null &&
-//             item.child_category_id == null,
-//         )
-//         .sort(
-//           (a, b) => new Date(a.created_at || 0) - new Date(b.created_at || 0),
-//         );
-
-//       return {
-//         title: cat?.name,
-//         items: directItems,
-//         isNumeral: cat ? isNumeralCat(cat) : false,
-//       };
-//     }
-
-//     if (key.startsWith("sub_")) {
-//       const subId = key.replace("sub_", "");
-//       const sc = subCategory.find((s) => String(s.id) === subId);
-//       const parentCat = category.find((c) => sameId(c.id, sc?.category_id));
-//       const childCats = getChildCategoriesForSubCategory(subId);
-
-//       // If sub-category has child categories → show hint only, never show sub-level items
-//       if (childCats.length > 0) {
-//         return {
-//           title: sc?.name,
-//           items: [],
-//           isNumeral: parentCat ? isNumeralCat(parentCat) : false,
-//           hint: "Select a sub-section from the left to view items.",
-//         };
-//       }
-
-//       // No child categories → show direct items
-//       const items = filteredPalaeographical.filter((p) =>
-//         sameId(p.sub_category_id, subId),
-//       );
-
-//       return {
-//         title: sc?.name,
-//         items,
-//         isNumeral: parentCat ? isNumeralCat(parentCat) : false,
-//       };
-//     }
-
-//     if (key.startsWith("child_")) {
-//       const childId = key.replace("child_", "");
-
-//       // Look up the child category from state first, then fall back to embedded objects
-//       const cc =
-//         childCategory.find((c) => String(c.id) === childId) ||
-//         filteredPalaeographical
-//           .find((p) => sameId(p.child_category?.id, childId))?.child_category;
-
-//       const parentSub = subCategory.find((s) =>
-//         sameId(s.id, cc?.sub_category_id),
-//       );
-//       const parentCat = category.find((c) =>
-//         sameId(c.id, parentSub?.category_id),
-//       );
-
-//       const items = filteredPalaeographical.filter(
-//         (p) =>
-//           sameId(p.child_category_id, childId) ||
-//           sameId(p.child_category?.id, childId),
-//       );
-
-//       return {
-//         title: cc?.name,
-//         items,
-//         isNumeral: parentCat ? isNumeralCat(parentCat) : false,
-//       };
-//     }
-
-//     return null;
-//   };
-//   const content = resolveContent(selectedKey);
-
-//   const handleTreeSelect = (key, options = {}) => {
-//     setSelectedKey(key);
-//     const nextOpenPath =
-//       options.hasChildren && options.isOpen
-//         ? getClosedPathForNode(key)
-//         : getOpenPathForNode(key, options);
-
-//     setOpenKeys(new Set(nextOpenPath));
-
-//     // const shouldScrollToTop =
-//     //   (key.startsWith("cat_") && !options.hasChildren) ||
-//     //   (key.startsWith("sub_") && !options.hasChildren) ||
-//     //   key.startsWith("child_");
-
-//     // if (shouldScrollToTop) {
-//     //   scrollToTop();
-//     // }
-
-//     if (drawerOpen && !options.hasChildren) {
-//       setDrawerOpen(false);
-//     }
-//   };
-
-//   const handleFilterChange = (key, value) =>
-//     setFilters((prev) => ({ ...prev, [key]: value }));
-
-//   const resetFilters = () =>
-//     setFilters({
-//       period: "All",
-//       script: "All",
-//       varna: "All",
-//       symbols: "All",
-//       citra: "All",
-//     });
-
-//   const sidebarProps = {
-//     sortedCategories,
-//     getSubCategoriesForCategory,
-//     getChildCategoriesForSubCategory,
-//     selectedKey,
-//     onSelect: handleTreeSelect,
-//     openKeys,
-//   };
-
-//   // Derive current category label for the mobile header button
-//   const selectedLabel = (() => {
-//     if (!selectedKey || !content?.title) return "Select Category";
-//     return content.title.length > 22
-//       ? content.title.slice(0, 22) + "…"
-//       : content.title;
-//   })();
-
-//   return (
-//     <>
-//       {/* Hero Banner */}
-//       <div className="relative h-[40vh] sm:h-[50vh] mt-12 flex items-center justify-center">
-//         <img
-//           src="images/inscription/main.jpg"
-//           alt="Inscriptions"
-//           className="absolute inset-0 w-full h-full object-cover"
-//         />
-//         <div className="absolute inset-0 bg-black/40"></div>
-//         <div className="absolute top-16 left-4 sm:left-6 z-10 text-white p-3 flex items-center gap-2 text-sm sm:text-base leading-6 tracking-wide">
-//           <Link to="/" className="hover:underline">
-//             Home
-//           </Link>
-//           <span>/</span>
-//           <span className="opacity-80">Palaeographical Database</span>
-//         </div>
-//         <h1 className="relative px-4 z-10 text-2xl sm:text-4xl md:text-5xl text-white font-semibold text-center leading-tight">
-//           Palaeographical Database of Inscriptions
-//         </h1>
-//       </div>
-
-//       {/* Intro */}
-//       <div className="px-6 lg:px-20 mx-auto py-10 sm:py-16">
-//         <h2 className="text-xl sm:text-3xl font-semibold mb-4">
-//           Database of Palaeographical and Visual Features of Inscriptions
-//         </h2>
-//         <p className="text-base sm:text-lg mb-8 text-justify">
-//           Inscriptions are among the earliest forms of writing in human
-//           civilisation. This initiative aims to bring together palaeographic
-//           research to build a comprehensive, evolving repository of
-//           inscriptional features from Nepal across key historical periods,
-//           including the Licchavi, Malla, and Shah/Rana eras. The project enables
-//           both scholars and the wider public to explore, compare, and analyse
-//           inscriptions from the region. By examining dated and undated materials
-//           side by side, readers can better identify stylistic characteristics
-//           and historical patterns. Beyond textual analysis, the study also sheds
-//           light on craftsmanship, production techniques, usage contexts, and
-//           intellectual traditions, with particular attention to the evolution of
-//           scripts and visual paratextual elements.
-//         </p>
-
-//         <div className="max-w-3xl mx-auto px-4 pb-10 sm:pb-12 text-center text-sm leading-relaxed">
-//           <p className="font-medium break-words">
-//             नातिकृशैर्नातिदीर्घैर्ह्रस्वदीर्घादिलक्षितैः ।
-//           </p>
-//           <p className="font-medium break-words">
-//             सम्पूर्णावयवैर्मात्राबिन्दुसंयोगलक्षितै: ॥
-//           </p>
-//           <p>nātikṛśair nātidīrghair hrasvadīrghādilakṣitaiḥ |</p>
-//           <p>sampūrṇāvayavair mātrābindusaṃyogalakṣitaiḥ ||</p>
-//           <p className="mt-2">
-//             [The letters should not be] too broad or too thin,{" "}
-//             <br className="hidden sm:block" />
-//             the short and long vowel signs [should be] marked [properly],{" "}
-//             <br className="hidden sm:block" />
-//             all parts [of the letters should be] inscribed [fully],{" "}
-//             <br className="hidden sm:block" />
-//             [and] the dots and conjunctions [should be] marked [clearly].
-//           </p>
-//           <p className="text-xs mt-3 text-gray-600">
-//             (<span className="italic">Hayaśīrṣapañcarātra,</span> 2.31.11)
-//           </p>
-//           <div className="mt-4 flex justify-center">
-//             <div className="cursor-pointer w-full sm:w-3/4">
-//               <audio controls controlsList="nodownload" className="w-full">
-//                 <source src="/images/database.wav" type="audio/mpeg" />
-//                 Your browser does not support the audio element.
-//               </audio>
-//             </div>
-//           </div>
-//         </div>
-
-//         <h2 className="mb-6 sm:mb-8 text-lg sm:text-2xl text-center">
-//           Our database is under development and continues to expand as new
-//           materials are added on ongoing basis. Visit and explore the
-//           collection!
-//         </h2>
-
-//         {/* Filters */}
-//         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-6 mb-6">
-//           {[
-//             { key: "period", label: "Period", allLabel: "All Periods" },
-//             { key: "script", label: "Script", allLabel: "All Scripts" },
-//             { key: "varna", label: "Varṇa", allLabel: "All Varṇa" },
-//             {
-//               key: "symbols",
-//               label: "Symbols, Signs",
-//               allLabel: "All Symbols",
-//             },
-//             { key: "citra", label: "Citra (figures)", allLabel: "All Citra" },
-//           ].map(({ key, label, allLabel }) => (
-//             <div key={key}>
-//               <label className="block text-xs sm:text-sm font-medium mb-1 sm:mb-2">
-//                 {label}
-//               </label>
-//               <select
-//                 className="border cursor-pointer p-2 sm:p-3 rounded w-full text-sm"
-//                 value={filters[key]}
-//                 onChange={(e) => handleFilterChange(key, e.target.value)}>
-//                 {unique(key).map((v) => (
-//                   <option key={v} value={v}>
-//                     {v === "All" ? allLabel : v}
-//                   </option>
-//                 ))}
-//               </select>
-//             </div>
-//           ))}
-//         </div>
-
-//         <div className="flex justify-end mb-8 sm:mb-10">
-//           <button
-//             onClick={resetFilters}
-//             className="px-4 sm:px-6 py-2 border cursor-pointer rounded text-sm hover:bg-gray-100 transition">
-//             Reset Filters
-//           </button>
-//         </div>
-//       </div>
-
-//       {/* ── Two-Panel Layout ─────────────────────────────────────────────────── */}
-//       <div className="px-6 lg:px-20 mx-auto pb-24">
-//         {/* Mobile/Tablet: Category toggle button */}
-//         <div className="lg:hidden mb-4">
-//           <button
-//             onClick={() => setDrawerOpen(true)}
-//             className="flex items-center gap-2 px-4 py-2.5 bg-[#50644b] text-white text-sm font-medium rounded-lg shadow-sm w-full sm:w-auto">
-//             {/* Hamburger icon */}
-//             <svg
-//               width="18"
-//               height="18"
-//               fill="none"
-//               stroke="currentColor"
-//               strokeWidth="2"
-//               viewBox="0 0 24 24">
-//               <path
-//                 strokeLinecap="round"
-//                 strokeLinejoin="round"
-//                 d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12"
-//               />
-//             </svg>
-//             <span>Categories</span>
-//             {selectedKey && content?.title && (
-//               <>
-//                 <span className="opacity-50 mx-1">·</span>
-//                 <span className="opacity-80 truncate">{selectedLabel}</span>
-//               </>
-//             )}
-//           </button>
-//         </div>
-
-//         <div className="flex gap-6 lg:gap-16 min-h-[500px] lg:min-h-[600px]">
-//           {/* ── Left: Desktop Sidebar ───────────────────────────────────────── */}
-//           {/* <aside className="hidden lg:block w-72 shrink-0  border border-gray-200 backdrop-blur-xl rounded-lg overflow-y-auto self-start  sticky top-4">
-//             <SidebarContent {...sidebarProps} />
-//           </aside> */}
-//           {/* ── Left: Desktop Sidebar ───────────────────────────────────────── */}
-//           <aside className="hidden lg:block w-96 shrink-0 border border-gray-200 rounded-lg overflow-y-auto self-start sticky top-4 ">
-//             <SidebarContent {...sidebarProps} />
-//           </aside>
-
-//           {/* ── Right: Content Panel ──────────────────────────────────────── */}
-//           <div
-//             ref={contentPanelRef}
-//             className="flex-1 p-4 sm:p-6 overflow-y-auto border border-gray-200 rounded-lg min-w-0 max-h-[80vh] self-start lg:sticky top-24">
-//             {!selectedKey ? (
-//               <div className="h-full flex flex-col items-center justify-center text-center text-gray-400 gap-3 py-16 sm:py-20">
-//                 <svg
-//                   width="48"
-//                   height="48"
-//                   fill="none"
-//                   stroke="currentColor"
-//                   strokeWidth="1.5"
-//                   viewBox="0 0 24 24">
-//                   <path
-//                     strokeLinecap="round"
-//                     strokeLinejoin="round"
-//                     d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12"
-//                   />
-//                 </svg>
-//                 <p className="text-base sm:text-lg font-medium">
-//                   Select a category
-//                 </p>
-//                 <p className="text-sm max-w-xs">
-//                   {window.innerWidth < 1024
-//                     ? 'Tap "Categories" above to browse.'
-//                     : "Click on any category, sub-category, or section to view its palaeographical items."}
-//                 </p>
-//               </div>
-//             ) : content ? (
-//               <>
-//                 <h3 className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6">
-//                   {content.title}
-//                 </h3>
-
-//                 {content.hint && (
-//                   <p className="text-sm text-gray-500 italic mb-4 sm:mb-6">
-//                     {content.hint}
-//                   </p>
-//                 )}
-
-//                 <div className="flex flex-wrap gap-3 sm:gap-6">
-//                   {content.items.length > 0
-//                     ? content.isNumeral
-//                       ? sortNumeralItems(content.items).map((item) => (
-//                           <NumeralBox key={item.id} item={item} />
-//                         ))
-//                       : [...content.items]
-//                           .sort((a, b) => {
-//                             const aOrder = a.order ?? null;
-//                             const bOrder = b.order ?? null;
-//                             if (aOrder === null && bOrder === null) return 0;
-//                             if (aOrder === null) return 1;
-//                             if (bOrder === null) return -1;
-//                             return aOrder - bOrder;
-//                           })
-//                           .map((item) => (
-//                             <CharacterBox
-//                               key={item.id}
-//                               image={item.image}
-//                               label={item.image_name || item.name || "Untitled"}
-//                               link={item.url || null}
-//                               hasData={true}
-//                             />
-//                           ))
-//                     : //  content.items.map((item) => (
-//                       //     <CharacterBox
-//                       //       key={item.id}
-//                       //       image={item.image}
-//                       //       label={item.image_name || item.name || "Untitled"}
-//                       //       link={item.url || null}
-//                       //       hasData={true}
-//                       //     />
-//                       //   ))
-//                       !content.hint && (
-//                         <CharacterBox
-//                           label={`${content.title} (In preparation)`}
-//                           hasData={false}
-//                         />
-//                       )}
-//                 </div>
-//               </>
-//             ) : (
-//               <CharacterBox label="In preparation" hasData={false} />
-//             )}
-//           </div>
-//         </div>
-//       </div>
-
-//       {/* ── Mobile Drawer Overlay ──────────────────────────────────────────── */}
-//       {drawerOpen && (
-//         <div className="fixed inset-0 z-50 lg:hidden">
-//           {/* Backdrop */}
-//           <div
-//             className="absolute inset-0 bg-black/50 transition-opacity"
-//             onClick={() => setDrawerOpen(false)}
-//           />
-
-//           {/* Drawer panel */}
-//           <div
-//             ref={drawerRef}
-//             className="absolute top-12 left-0 h-full w-[280px] sm:w-[320px] backdrop-blur-lg shadow-2xl flex flex-col overflow-hidden"
-//             style={{ animation: "slideInLeft 0.25s ease-out" }}>
-//             {/* Drawer header with close button */}
-//             <div className="flex items-center justify-between px-4 py-3 bg-[#50644b]">
-//               <span className="text-white font-semibold text-sm tracking-wide uppercase">
-//                 Categories
-//               </span>
-//               <button
-//                 onClick={() => setDrawerOpen(false)}
-//                 className="text-white/80 hover:text-white transition-colors p-1 rounded"
-//                 aria-label="Close categories">
-//                 <svg
-//                   width="20"
-//                   height="20"
-//                   fill="none"
-//                   stroke="currentColor"
-//                   strokeWidth="2"
-//                   viewBox="0 0 24 24">
-//                   <path
-//                     strokeLinecap="round"
-//                     strokeLinejoin="round"
-//                     d="M6 18L18 6M6 6l12 12"
-//                   />
-//                 </svg>
-//               </button>
-//             </div>
-
-//             {/* Scrollable tree */}
-//             <div className="flex-1 overflow-y-auto">
-//               <SidebarContent {...sidebarProps} />
-//             </div>
-//           </div>
-//         </div>
-//       )}
-
-//       {/* Drawer animation keyframe */}
-//       <style>{`
-//         @keyframes slideInLeft {
-//           from { transform: translateX(-100%); }
-//           to   { transform: translateX(0); }
-//         }
-//       `}</style>
-//     </>
-//   );
-// };
-
-// export default Palaeographical;
-
-
-
 import { Link } from "react-router-dom";
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
@@ -2180,15 +1133,22 @@ const CharacterBox = ({ image, label, link, hasData = true }) => {
     <div className="inline-block border border-black mb-2 w-[120px] sm:w-[140px]">
       <div className="min-h-[120px] sm:min-h-[140px] flex flex-col">
         <div className="flex-1 p-3 sm:p-4 text-center">
-          {imageUrl && !imgError ? (
-            <div className="w-14 sm:w-16 h-14 sm:h-16 mx-auto flex items-center justify-center">
-              <img
-                src={imageUrl}
-                className="max-w-full max-h-full object-contain"
-                alt={label}
-                onError={() => setImgError(true)}
-              />
-            </div>
+          {/* {imageUrl && !imgError ? (
+            <img
+              src={imageUrl}
+              className="w-12 sm:w-16 mx-auto h-12 sm:h-16 object-contain"
+              alt={label}
+              onError={() => setImgError(true)}
+            /> */}
+            {imageUrl && !imgError ? (
+  <div className="w-14 sm:w-16 h-14 sm:h-16 mx-auto flex items-center justify-center">
+    <img
+      src={imageUrl}
+      className="max-w-full max-h-full object-contain"
+      alt={label}
+      onError={() => setImgError(true)}
+    />
+  </div>
           ) : (
             <div className="w-12 sm:w-16 mx-auto h-12 sm:h-16 flex items-center justify-center text-gray-400 text-xs sm:text-sm">
               {label}
@@ -2209,33 +1169,18 @@ const CharacterBox = ({ image, label, link, hasData = true }) => {
   );
 };
 
-// ── Helper: parse INSN group + numeric part for sorting ───────────────────────
-// Matches names like "INSN1L545_ka" -> group: 1 (from INSN1L), num: 545
-const parseImageName = (imageName) => {
-  if (!imageName) return { group: Infinity, num: Infinity };
-
-  const match = imageName.match(/^INSN(\d+)L(\d+)/i);
-
-  return {
-    group: match ? parseInt(match[1], 10) : Infinity,
-    num: match ? parseInt(match[2], 10) : Infinity,
-  };
+// ── Helper: extract trailing number from image_name ──────────────────────────
+const extractSuffixNumber = (imageName) => {
+  if (!imageName) return null;
+  const match = imageName.match(/_(\d+)$/);
+  return match ? parseInt(match[1], 10) : null;
 };
 
-// Sorts items so INSN1L* comes before INSN2L*, INSN3L*, INSN4L*, etc.,
-// and within the same group, orders by the number after "L".
-// Falls back to `order` field, then leaves untouched if nothing matches.
-const sortByInsnGroup = (items) =>
+const sortNumeralItems = (items) =>
   [...items].sort((a, b) => {
-    const pa = parseImageName(a.image_name);
-    const pb = parseImageName(b.image_name);
-
-    if (pa.group !== pb.group) return pa.group - pb.group;
-    if (pa.num !== pb.num) return pa.num - pb.num;
-
-    const aOrder = a.order ?? Infinity;
-    const bOrder = b.order ?? Infinity;
-    return aOrder - bOrder;
+    const numA = extractSuffixNumber(a.image_name) ?? Infinity;
+    const numB = extractSuffixNumber(b.image_name) ?? Infinity;
+    return numA - numB;
   });
 
 // ── NumeralBox Component ──────────────────────────────────────────────────────
@@ -2248,20 +1193,27 @@ const NumeralBox = ({ item }) => {
       : `${imageBaseUrl}/${item.image}`
     : null;
 
-  const { num: displayNumber } = parseImageName(item.image_name);
+  const displayNumber = extractSuffixNumber(item.image_name);
 
   return (
     <div className="border border-black w-[120px] sm:w-[140px] min-h-[120px] sm:min-h-[140px] p-2 text-center flex flex-col justify-between">
       <div className="flex flex-col justify-end gap-2 h-[70px] sm:h-[80px]">
-        {imageUrl && !imgError ? (
-          <div className="w-12 sm:w-16 h-12 sm:h-16 mx-auto flex items-center justify-center">
-            <img
-              src={imageUrl}
-              className="max-w-full max-h-full object-contain"
-              alt={item.image_name}
-              onError={() => setImgError(true)}
-            />
-          </div>
+        {/* {imageUrl && !imgError ? (
+          <img
+            src={imageUrl}
+            className="w-12 sm:w-16 mx-auto h-12 sm:h-16 object-contain"
+            alt={item.image_name}
+            onError={() => setImgError(true)}
+          /> */}
+          {imageUrl && !imgError ? (
+  <div className="w-12 sm:w-16 h-12 sm:h-16 mx-auto flex items-center justify-center">
+    <img
+      src={imageUrl}
+      className="max-w-full max-h-full object-contain"
+      alt={item.image_name}
+      onError={() => setImgError(true)}
+    />
+  </div>
         ) : (
           <div className="w-12 sm:w-16 mx-auto h-12 sm:h-16 flex items-center justify-center text-gray-400 text-xs">
             In preparation
@@ -2278,11 +1230,60 @@ const NumeralBox = ({ item }) => {
         )}
       </div>
       <p className="text-sm border-t border-black py-1">
-        {displayNumber !== Infinity ? displayNumber : "—"}
+        {displayNumber !== null ? displayNumber : "—"}
       </p>
     </div>
   );
 };
+
+// ── Tree Node ─────────────────────────────────────────────────────────────────
+// const TreeNode = ({
+//   label,
+//   nodeKey,
+//   selectedKey,
+//   onSelect,
+//   children,
+//   depth = 0,
+// }) => {
+//   const isSelected = selectedKey === nodeKey;
+//   const hasChildren = React.Children.count(children) > 0;
+//   const [open, setOpen] = useState(false);
+
+//   useEffect(() => {
+//     if (selectedKey && selectedKey.startsWith(nodeKey + "_")) {
+//       setOpen(true);
+//     }
+//   }, [selectedKey, nodeKey]);
+
+//   const paddingLeft = depth === 0 ? "pl-3" : depth === 1 ? "pl-5" : "pl-7";
+
+//   return (
+//     <div>
+//       <button
+//         onClick={() => {
+//           onSelect(nodeKey);
+//           if (hasChildren) setOpen((o) => !o);
+//         }}
+//         className={`w-full text-left flex items-center justify-between gap-1 py-3 pr-3 text-sm transition-colors ${paddingLeft} ${
+//           isSelected
+//             ? "bg-[#3d4f39] text-white font-semibold"
+//             : "bg-[#50644b] text-white"
+//         } ${depth === 0 ? "font-semibold text-[0.92rem] mt-1" : "font-normal mt-0.5"}`}>
+//         <span className="leading-snug">{label}</span>
+//         {hasChildren && (
+//           <span className="text-base shrink-0 font-bold leading-none">
+//             {open ? "−" : "+"}
+//           </span>
+//         )}
+//       </button>
+//       {hasChildren && open && (
+//         <div className="border-l border-[#50644b]/30 ml-3 mt-1 space-y-0.5">
+//           {children}
+//         </div>
+//       )}
+//     </div>
+//   );
+// };
 
 // ── Tree Node ─────────────────────────────────────────────────────────────────
 const TreeNode = ({
@@ -2523,6 +1524,85 @@ const Palaeographical = () => {
     cat.name.toLowerCase().includes("anka") ||
     cat.name.toLowerCase().includes("numeral");
 
+  // const resolveContent = (key) => {
+  //   if (!key) return null;
+
+  //   if (key.startsWith("cat_")) {
+  //     const catId = key.replace("cat_", "");
+  //     const cat = category.find((c) => String(c.id) === catId);
+  //     const directItems = filteredPalaeographical
+  //       .filter(
+  //         (item) =>
+  //           sameId(item.category_id, catId) &&
+  //           item.sub_category_id == null &&
+  //           item.child_category_id == null,
+  //       )
+  //       .sort(
+  //         (a, b) => new Date(a.created_at || 0) - new Date(b.created_at || 0),
+  //       );
+
+  //     return {
+  //       title: cat?.name,
+  //       items: directItems,
+  //       isNumeral: cat ? isNumeralCat(cat) : false,
+  //     };
+  //   }
+
+  //   if (key.startsWith("sub_")) {
+  //     const subId = key.replace("sub_", "");
+  //     const sc = subCategory.find((s) => String(s.id) === subId);
+  //     const parentCat = category.find((c) => sameId(c.id, sc?.category_id));
+  //     const childCats = getChildCategoriesForSubCategory(subId);
+
+  //     const items =
+  //       childCats.length === 0
+  //         ? filteredPalaeographical.filter((p) =>
+  //             sameId(p.sub_category_id, subId),
+  //           )
+  //         : [];
+
+  //     return {
+  //       title: sc?.name,
+  //       items,
+  //       isNumeral: parentCat ? isNumeralCat(parentCat) : false,
+  //       hint:
+  //         childCats.length > 0
+  //           ? "Select a sub-section from the left to view items."
+  //           : null,
+  //     };
+  //   }
+
+  //   if (key.startsWith("child_")) {
+  //     const childId = key.replace("child_", "");
+  //     const cc =
+  //       childCategory.find((c) => String(c.id) === childId) ||
+  //       filteredPalaeographical.find((p) =>
+  //         sameId(p.child_category?.id, childId),
+  //       )?.child_category;
+
+  //     const parentSub = subCategory.find((s) =>
+  //       sameId(s.id, cc?.sub_category_id),
+  //     );
+  //     const parentCat = category.find((c) =>
+  //       sameId(c.id, parentSub?.category_id),
+  //     );
+
+  //     const items = filteredPalaeographical.filter(
+  //       (p) =>
+  //         sameId(p.child_category_id, childId) ||
+  //         sameId(p.child_category?.id, childId),
+  //     );
+
+  //     return {
+  //       title: cc?.name,
+  //       items,
+  //       isNumeral: parentCat ? isNumeralCat(parentCat) : false,
+  //     };
+  //   }
+
+  //   return null;
+  // };
+
   const getOpenPathForNode = (key, options = {}) => {
     if (!key) return [];
 
@@ -2603,6 +1683,10 @@ const Palaeographical = () => {
     return [];
   };
 
+  // const scrollToTop = () => {
+  //   window.scrollTo({ top: 1200, behavior: "smooth" });
+  // };
+
   const resolveContent = (key) => {
     if (!key) return null;
 
@@ -2611,6 +1695,7 @@ const Palaeographical = () => {
       const cat = category.find((c) => String(c.id) === catId);
       const subCats = getSubCategoriesForCategory(catId);
 
+      // If category has sub-categories → show hint only, never show category-level items
       if (subCats.length > 0) {
         return {
           title: cat?.name,
@@ -2620,12 +1705,17 @@ const Palaeographical = () => {
         };
       }
 
-      const directItems = filteredPalaeographical.filter(
-        (item) =>
-          sameId(item.category_id, catId) &&
-          item.sub_category_id == null &&
-          item.child_category_id == null,
-      );
+      // No sub-categories → show direct items
+      const directItems = filteredPalaeographical
+        .filter(
+          (item) =>
+            sameId(item.category_id, catId) &&
+            item.sub_category_id == null &&
+            item.child_category_id == null,
+        )
+        .sort(
+          (a, b) => new Date(a.created_at || 0) - new Date(b.created_at || 0),
+        );
 
       return {
         title: cat?.name,
@@ -2640,6 +1730,7 @@ const Palaeographical = () => {
       const parentCat = category.find((c) => sameId(c.id, sc?.category_id));
       const childCats = getChildCategoriesForSubCategory(subId);
 
+      // If sub-category has child categories → show hint only, never show sub-level items
       if (childCats.length > 0) {
         return {
           title: sc?.name,
@@ -2649,6 +1740,7 @@ const Palaeographical = () => {
         };
       }
 
+      // No child categories → show direct items
       const items = filteredPalaeographical.filter((p) =>
         sameId(p.sub_category_id, subId),
       );
@@ -2663,6 +1755,7 @@ const Palaeographical = () => {
     if (key.startsWith("child_")) {
       const childId = key.replace("child_", "");
 
+      // Look up the child category from state first, then fall back to embedded objects
       const cc =
         childCategory.find((c) => String(c.id) === childId) ||
         filteredPalaeographical
@@ -2690,7 +1783,6 @@ const Palaeographical = () => {
 
     return null;
   };
-
   const content = resolveContent(selectedKey);
 
   const handleTreeSelect = (key, options = {}) => {
@@ -2701,6 +1793,15 @@ const Palaeographical = () => {
         : getOpenPathForNode(key, options);
 
     setOpenKeys(new Set(nextOpenPath));
+
+    // const shouldScrollToTop =
+    //   (key.startsWith("cat_") && !options.hasChildren) ||
+    //   (key.startsWith("sub_") && !options.hasChildren) ||
+    //   key.startsWith("child_");
+
+    // if (shouldScrollToTop) {
+    //   scrollToTop();
+    // }
 
     if (drawerOpen && !options.hasChildren) {
       setDrawerOpen(false);
@@ -2728,6 +1829,7 @@ const Palaeographical = () => {
     openKeys,
   };
 
+  // Derive current category label for the mobile header button
   const selectedLabel = (() => {
     if (!selectedKey || !content?.title) return "Select Category";
     return content.title.length > 22
@@ -2856,10 +1958,12 @@ const Palaeographical = () => {
 
       {/* ── Two-Panel Layout ─────────────────────────────────────────────────── */}
       <div className="px-6 lg:px-20 mx-auto pb-24">
+        {/* Mobile/Tablet: Category toggle button */}
         <div className="lg:hidden mb-4">
           <button
             onClick={() => setDrawerOpen(true)}
             className="flex items-center gap-2 px-4 py-2.5 bg-[#50644b] text-white text-sm font-medium rounded-lg shadow-sm w-full sm:w-auto">
+            {/* Hamburger icon */}
             <svg
               width="18"
               height="18"
@@ -2884,10 +1988,16 @@ const Palaeographical = () => {
         </div>
 
         <div className="flex gap-6 lg:gap-16 min-h-[500px] lg:min-h-[600px]">
+          {/* ── Left: Desktop Sidebar ───────────────────────────────────────── */}
+          {/* <aside className="hidden lg:block w-72 shrink-0  border border-gray-200 backdrop-blur-xl rounded-lg overflow-y-auto self-start  sticky top-4">
+            <SidebarContent {...sidebarProps} />
+          </aside> */}
+          {/* ── Left: Desktop Sidebar ───────────────────────────────────────── */}
           <aside className="hidden lg:block w-96 shrink-0 border border-gray-200 rounded-lg overflow-y-auto self-start sticky top-4 ">
             <SidebarContent {...sidebarProps} />
           </aside>
 
+          {/* ── Right: Content Panel ──────────────────────────────────────── */}
           <div
             ref={contentPanelRef}
             className="flex-1 p-4 sm:p-6 overflow-y-auto border border-gray-200 rounded-lg min-w-0 max-h-[80vh] self-start lg:sticky top-24">
@@ -2930,19 +2040,37 @@ const Palaeographical = () => {
                 <div className="flex flex-wrap gap-3 sm:gap-6">
                   {content.items.length > 0
                     ? content.isNumeral
-                      ? sortByInsnGroup(content.items).map((item) => (
+                      ? sortNumeralItems(content.items).map((item) => (
                           <NumeralBox key={item.id} item={item} />
                         ))
-                      : sortByInsnGroup(content.items).map((item) => (
-                          <CharacterBox
-                            key={item.id}
-                            image={item.image}
-                            label={item.image_name || item.name || "Untitled"}
-                            link={item.url || null}
-                            hasData={true}
-                          />
-                        ))
-                    : !content.hint && (
+                      : [...content.items]
+                          .sort((a, b) => {
+                            const aOrder = a.order ?? null;
+                            const bOrder = b.order ?? null;
+                            if (aOrder === null && bOrder === null) return 0;
+                            if (aOrder === null) return 1;
+                            if (bOrder === null) return -1;
+                            return aOrder - bOrder;
+                          })
+                          .map((item) => (
+                            <CharacterBox
+                              key={item.id}
+                              image={item.image}
+                              label={item.image_name || item.name || "Untitled"}
+                              link={item.url || null}
+                              hasData={true}
+                            />
+                          ))
+                    : //  content.items.map((item) => (
+                      //     <CharacterBox
+                      //       key={item.id}
+                      //       image={item.image}
+                      //       label={item.image_name || item.name || "Untitled"}
+                      //       link={item.url || null}
+                      //       hasData={true}
+                      //     />
+                      //   ))
+                      !content.hint && (
                         <CharacterBox
                           label={`${content.title} (In preparation)`}
                           hasData={false}
@@ -2960,15 +2088,18 @@ const Palaeographical = () => {
       {/* ── Mobile Drawer Overlay ──────────────────────────────────────────── */}
       {drawerOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
+          {/* Backdrop */}
           <div
             className="absolute inset-0 bg-black/50 transition-opacity"
             onClick={() => setDrawerOpen(false)}
           />
 
+          {/* Drawer panel */}
           <div
             ref={drawerRef}
             className="absolute top-12 left-0 h-full w-[280px] sm:w-[320px] backdrop-blur-lg shadow-2xl flex flex-col overflow-hidden"
             style={{ animation: "slideInLeft 0.25s ease-out" }}>
+            {/* Drawer header with close button */}
             <div className="flex items-center justify-between px-4 py-3 bg-[#50644b]">
               <span className="text-white font-semibold text-sm tracking-wide uppercase">
                 Categories
@@ -2993,6 +2124,7 @@ const Palaeographical = () => {
               </button>
             </div>
 
+            {/* Scrollable tree */}
             <div className="flex-1 overflow-y-auto">
               <SidebarContent {...sidebarProps} />
             </div>
@@ -3000,6 +2132,7 @@ const Palaeographical = () => {
         </div>
       )}
 
+      {/* Drawer animation keyframe */}
       <style>{`
         @keyframes slideInLeft {
           from { transform: translateX(-100%); }
@@ -3011,3 +2144,870 @@ const Palaeographical = () => {
 };
 
 export default Palaeographical;
+
+
+
+// import { Link } from "react-router-dom";
+// import React, { useEffect, useState, useRef } from "react";
+// import axios from "axios";
+
+// // ── CharacterBox Component ────────────────────────────────────────────────────
+// const CharacterBox = ({ image, label, link, hasData = true }) => {
+//   const [imgError, setImgError] = useState(false);
+//   const imageBaseUrl = import.meta.env.VITE_IMAGE_PATH;
+
+//   if (!hasData) {
+//     return (
+//       <div className="inline-block border border-black mb-2 w-[120px] sm:w-[140px]">
+//         <div className="min-h-[120px] sm:min-h-[140px] flex flex-col">
+//           <div className="flex-1 p-3 sm:p-4 text-center">
+//             <p className="mt-2 text-xs sm:text-sm text-gray-400 break-words">
+//               {label}
+//             </p>
+//           </div>
+//         </div>
+//       </div>
+//     );
+//   }
+
+//   const imageUrl = image
+//     ? image.startsWith("http")
+//       ? image
+//       : `${imageBaseUrl}/${image}`
+//     : null;
+
+//   return (
+//     <div className="inline-block border border-black mb-2 w-[120px] sm:w-[140px]">
+//       <div className="min-h-[120px] sm:min-h-[140px] flex flex-col">
+//         <div className="flex-1 p-3 sm:p-4 text-center">
+//           {imageUrl && !imgError ? (
+//             <div className="w-14 sm:w-16 h-14 sm:h-16 mx-auto flex items-center justify-center">
+//               <img
+//                 src={imageUrl}
+//                 className="max-w-full max-h-full object-contain"
+//                 alt={label}
+//                 onError={() => setImgError(true)}
+//               />
+//             </div>
+//           ) : (
+//             <div className="w-12 sm:w-16 mx-auto h-12 sm:h-16 flex items-center justify-center text-gray-400 text-xs sm:text-sm">
+//               {label}
+//             </div>
+//           )}
+//           {link ? (
+//             <a href={link} target="_blank" rel="noopener noreferrer">
+//               <p className="mt-2 text-xs sm:text-sm hover:text-blue-700 break-words">
+//                 {label}
+//               </p>
+//             </a>
+//           ) : (
+//             <p className="mt-2 text-xs sm:text-sm break-words">{label}</p>
+//           )}
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
+
+// // ── Helper: parse INSN group + numeric part for sorting ───────────────────────
+// // Matches names like "INSN1L545_ka" -> group: 1 (from INSN1L), num: 545
+// const parseImageName = (imageName) => {
+//   if (!imageName) return { group: Infinity, num: Infinity };
+
+//   const match = imageName.match(/^INSN(\d+)L(\d+)/i);
+
+//   return {
+//     group: match ? parseInt(match[1], 10) : Infinity,
+//     num: match ? parseInt(match[2], 10) : Infinity,
+//   };
+// };
+
+// // Sorts items so INSN1L* comes before INSN2L*, INSN3L*, INSN4L*, etc.,
+// // and within the same group, orders by the number after "L".
+// // Falls back to `order` field, then leaves untouched if nothing matches.
+// const sortByInsnGroup = (items) =>
+//   [...items].sort((a, b) => {
+//     const pa = parseImageName(a.image_name);
+//     const pb = parseImageName(b.image_name);
+
+//     if (pa.group !== pb.group) return pa.group - pb.group;
+//     if (pa.num !== pb.num) return pa.num - pb.num;
+
+//     const aOrder = a.order ?? Infinity;
+//     const bOrder = b.order ?? Infinity;
+//     return aOrder - bOrder;
+//   });
+
+// // ── NumeralBox Component ──────────────────────────────────────────────────────
+// const NumeralBox = ({ item }) => {
+//   const [imgError, setImgError] = useState(false);
+//   const imageBaseUrl = import.meta.env.VITE_IMAGE_PATH;
+//   const imageUrl = item.image
+//     ? item.image.startsWith("http")
+//       ? item.image
+//       : `${imageBaseUrl}/${item.image}`
+//     : null;
+
+//   const { num: displayNumber } = parseImageName(item.image_name);
+
+//   return (
+//     <div className="border border-black w-[120px] sm:w-[140px] min-h-[120px] sm:min-h-[140px] p-2 text-center flex flex-col justify-between">
+//       <div className="flex flex-col justify-end gap-2 h-[70px] sm:h-[80px]">
+//         {imageUrl && !imgError ? (
+//           <div className="w-12 sm:w-16 h-12 sm:h-16 mx-auto flex items-center justify-center">
+//             <img
+//               src={imageUrl}
+//               className="max-w-full max-h-full object-contain"
+//               alt={item.image_name}
+//               onError={() => setImgError(true)}
+//             />
+//           </div>
+//         ) : (
+//           <div className="w-12 sm:w-16 mx-auto h-12 sm:h-16 flex items-center justify-center text-gray-400 text-xs">
+//             In preparation
+//           </div>
+//         )}
+//         {item.url ? (
+//           <a href={item.url} target="_blank" rel="noopener noreferrer">
+//             <p className="text-xs hover:text-blue-700 break-words">
+//               {item.image_name}
+//             </p>
+//           </a>
+//         ) : (
+//           <p className="text-xs break-words">{item.image_name}</p>
+//         )}
+//       </div>
+//       <p className="text-sm border-t border-black py-1">
+//         {displayNumber !== Infinity ? displayNumber : "—"}
+//       </p>
+//     </div>
+//   );
+// };
+
+// // ── Tree Node ─────────────────────────────────────────────────────────────────
+// const TreeNode = ({
+//   label,
+//   nodeKey,
+//   selectedKey,
+//   onSelect,
+//   children,
+//   depth = 0,
+//   openKeys,
+// }) => {
+//   const isSelected = selectedKey === nodeKey;
+//   const hasChildren = React.Children.count(children) > 0;
+//   const open = openKeys.has(nodeKey);
+
+//   const paddingLeft = depth === 0 ? "pl-4" : depth === 1 ? "pl-7" : "pl-10";
+
+//   const depthStyles =
+//     depth === 0
+//       ? "font-semibold text-[0.93rem] mt-2 py-3"
+//       : depth === 1
+//         ? "font-normal text-[0.87rem] mt-1 py-2.5"
+//         : "font-normal text-[0.83rem] mt-0.5 py-2";
+
+//   return (
+//     <div>
+//       <button
+//         onClick={() => onSelect(nodeKey, { hasChildren, isOpen: open })}
+//         className={`w-full text-left flex items-center justify-between gap-2 pr-4 text-sm transition-colors ${paddingLeft} ${depthStyles} ${
+//           isSelected
+//             ? "bg-[#3d4f39] text-white"
+//             : depth === 0
+//               ? "bg-[#50644b] text-white hover:bg-[#445840]"
+//               : depth === 1
+//                 ? "bg-[#4a5e45] text-white/90 hover:bg-[#3d4f39]"
+//                 : "bg-[#445840] text-white/80 hover:bg-[#3a4c36]"
+//         }`}>
+//         <span className="leading-snug">{label}</span>
+//         {hasChildren && (
+//           <span className="text-sm shrink-0 font-bold leading-none opacity-70">
+//             {open ? "−" : "+"}
+//           </span>
+//         )}
+//       </button>
+//       {hasChildren && open && (
+//         <div className="ml-0 mt-0.5 space-y-0.5 border-l-2 border-white/10 ml-4">
+//           {children}
+//         </div>
+//       )}
+//     </div>
+//   );
+// };
+
+// // ── Sidebar Content (shared between desktop & mobile drawer) ──────────────────
+// const SidebarContent = ({
+//   sortedCategories,
+//   getSubCategoriesForCategory,
+//   getChildCategoriesForSubCategory,
+//   selectedKey,
+//   onSelect,
+//   openKeys,
+// }) => (
+//   <>
+//     <div className="p-3 bg-[#50644b] text-white text-sm font-semibold tracking-wide uppercase rounded-t-lg sticky top-0 z-10">
+//       Categories
+//     </div>
+//     <nav className="py-2 flex flex-col">
+//       {sortedCategories.map((cat) => {
+//         const subCats = getSubCategoriesForCategory(cat.id);
+//         return (
+//           <TreeNode
+//             key={cat.id}
+//             label={cat.name}
+//             nodeKey={`cat_${cat.id}`}
+//             selectedKey={selectedKey}
+//             onSelect={onSelect}
+//             depth={0}
+//             openKeys={openKeys}>
+//             {subCats.map((sc) => {
+//               const childCats = getChildCategoriesForSubCategory(sc.id);
+//               return (
+//                 <TreeNode
+//                   key={sc.id}
+//                   label={sc.name}
+//                   nodeKey={`sub_${sc.id}`}
+//                   selectedKey={selectedKey}
+//                   onSelect={onSelect}
+//                   depth={1}
+//                   openKeys={openKeys}>
+//                   {childCats.map((cc) => (
+//                     <TreeNode
+//                       key={cc.id}
+//                       label={cc.name}
+//                       nodeKey={`child_${cc.id}`}
+//                       selectedKey={selectedKey}
+//                       onSelect={onSelect}
+//                       depth={2}
+//                       openKeys={openKeys}
+//                     />
+//                   ))}
+//                 </TreeNode>
+//               );
+//             })}
+//           </TreeNode>
+//         );
+//       })}
+//     </nav>
+//   </>
+// );
+
+// // ── Main Component ────────────────────────────────────────────────────────────
+// const Palaeographical = () => {
+//   const [palaeographical, setPalaeographical] = useState([]);
+//   const [subCategory, setSubCategory] = useState([]);
+//   const [childCategory, setChildCategory] = useState([]);
+//   const [category, setCategory] = useState([]);
+//   const [selectedKey, setSelectedKey] = useState(null);
+//   const [autoSelected, setAutoSelected] = useState(false);
+//   const [drawerOpen, setDrawerOpen] = useState(false);
+//   const [openKeys, setOpenKeys] = useState(new Set());
+//   const [filters, setFilters] = useState({
+//     period: "All",
+//     script: "All",
+//     varna: "All",
+//     symbols: "All",
+//     citra: "All",
+//   });
+
+//   const drawerRef = useRef(null);
+//   const contentPanelRef = useRef(null);
+//   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+//   useEffect(() => {
+//     axios
+//       .get(`${API_BASE_URL}/palaeographical`)
+//       .then((r) => setPalaeographical(r.data.data))
+//       .catch(console.error);
+//     axios
+//       .get(`${API_BASE_URL}/sub_categories`)
+//       .then((r) => setSubCategory(r.data.data))
+//       .catch(console.error);
+//     axios
+//       .get(`${API_BASE_URL}/categories`)
+//       .then((r) => setCategory(r.data.data))
+//       .catch(console.error);
+//     axios
+//       .get(`${API_BASE_URL}/child_categories`)
+//       .then((r) => setChildCategory(r.data.data))
+//       .catch(console.error);
+//   }, []);
+
+//   useEffect(() => {
+//     if (!autoSelected && category.length > 0) {
+//       const first = [...category].sort(
+//         (a, b) => new Date(a.created_at) - new Date(b.created_at),
+//       )[0];
+//       setSelectedKey(`cat_${first.id}`);
+//       setAutoSelected(true);
+//     }
+//   }, [category, autoSelected]);
+
+//   // Close drawer on outside click
+//   useEffect(() => {
+//     const handleOutside = (e) => {
+//       if (
+//         drawerOpen &&
+//         drawerRef.current &&
+//         !drawerRef.current.contains(e.target)
+//       ) {
+//         setDrawerOpen(false);
+//       }
+//     };
+//     document.addEventListener("mousedown", handleOutside);
+//     return () => document.removeEventListener("mousedown", handleOutside);
+//   }, [drawerOpen]);
+
+//   // Prevent body scroll when drawer is open
+//   useEffect(() => {
+//     if (drawerOpen) {
+//       document.body.style.overflow = "hidden";
+//     } else {
+//       document.body.style.overflow = "";
+//     }
+//     return () => {
+//       document.body.style.overflow = "";
+//     };
+//   }, [drawerOpen]);
+
+//   const sameId = (l, r) => l != null && r != null && String(l) === String(r);
+
+//   const sortedCategories = [...category].sort(
+//     (a, b) => new Date(a.created_at) - new Date(b.created_at),
+//   );
+
+//   const unique = (key) => [
+//     "All",
+//     ...new Set(palaeographical.map((i) => i[key]).filter(Boolean)),
+//   ];
+
+//   const filteredPalaeographical = palaeographical.filter((item) => {
+//     if (filters.period !== "All" && item.period !== filters.period)
+//       return false;
+//     if (filters.script !== "All" && item.script !== filters.script)
+//       return false;
+//     if (filters.varna !== "All" && item.varna !== filters.varna) return false;
+//     if (filters.symbols !== "All" && item.symbols !== filters.symbols)
+//       return false;
+//     if (filters.citra !== "All" && item.citra !== filters.citra) return false;
+//     return true;
+//   });
+
+//   const getSubCategoriesForCategory = (catId) =>
+//     subCategory
+//       .filter((sc) => sameId(sc.category_id, catId))
+//       .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+
+//   const getChildCategoriesForSubCategory = (subCatId) =>
+//     [
+//       ...childCategory.filter((cc) => sameId(cc.sub_category_id, subCatId)),
+//       ...filteredPalaeographical
+//         .filter(
+//           (item) =>
+//             sameId(item.sub_category_id, subCatId) && item.child_category,
+//         )
+//         .map((item) => item.child_category),
+//     ]
+//       .filter(
+//         (cc, idx, arr) =>
+//           cc?.id !== undefined &&
+//           arr.findIndex((c) => sameId(c?.id, cc.id)) === idx,
+//       )
+//       .sort(
+//         (a, b) => new Date(a.created_at || 0) - new Date(b.created_at || 0),
+//       );
+
+//   const isNumeralCat = (cat) =>
+//     cat.name.toLowerCase().includes("aṅka") ||
+//     cat.name.toLowerCase().includes("anka") ||
+//     cat.name.toLowerCase().includes("numeral");
+
+//   const getOpenPathForNode = (key, options = {}) => {
+//     if (!key) return [];
+
+//     if (key.startsWith("cat_")) {
+//       const catId = key.replace("cat_", "");
+//       const hasSubCategories = getSubCategoriesForCategory(catId).length > 0;
+//       return options.hasChildren ?? hasSubCategories ? [key] : [];
+//     }
+
+//     if (key.startsWith("sub_")) {
+//       const subId = key.replace("sub_", "");
+//       const currentSubCategory = subCategory.find((item) => sameId(item.id, subId));
+
+//       if (!currentSubCategory) return [];
+
+//       const hasChildCategories =
+//         options.hasChildren ?? getChildCategoriesForSubCategory(subId).length > 0;
+//       const path = [`cat_${currentSubCategory.category_id}`];
+
+//       if (hasChildCategories) {
+//         path.push(key);
+//       }
+
+//       return path;
+//     }
+
+//     if (key.startsWith("child_")) {
+//       const childId = key.replace("child_", "");
+//       const currentChildCategory =
+//         childCategory.find((item) => sameId(item.id, childId)) ||
+//         filteredPalaeographical.find((item) => sameId(item.child_category?.id, childId))
+//           ?.child_category;
+//       const parentSubId = currentChildCategory?.sub_category_id;
+
+//       if (!parentSubId) return [];
+
+//       const parentSubCategory = subCategory.find((item) => sameId(item.id, parentSubId));
+
+//       if (!parentSubCategory) return [];
+
+//       return [`cat_${parentSubCategory.category_id}`, `sub_${parentSubCategory.id}`];
+//     }
+
+//     return [];
+//   };
+
+//   const getClosedPathForNode = (key) => {
+//     if (!key) return [];
+
+//     if (key.startsWith("cat_")) {
+//       return [];
+//     }
+
+//     if (key.startsWith("sub_")) {
+//       const subId = key.replace("sub_", "");
+//       const currentSubCategory = subCategory.find((item) => sameId(item.id, subId));
+
+//       return currentSubCategory ? [`cat_${currentSubCategory.category_id}`] : [];
+//     }
+
+//     if (key.startsWith("child_")) {
+//       const childId = key.replace("child_", "");
+//       const currentChildCategory =
+//         childCategory.find((item) => sameId(item.id, childId)) ||
+//         filteredPalaeographical.find((item) => sameId(item.child_category?.id, childId))
+//           ?.child_category;
+//       const parentSubId = currentChildCategory?.sub_category_id;
+
+//       if (!parentSubId) return [];
+
+//       const parentSubCategory = subCategory.find((item) => sameId(item.id, parentSubId));
+
+//       return parentSubCategory
+//         ? [`cat_${parentSubCategory.category_id}`, `sub_${parentSubCategory.id}`]
+//         : [];
+//     }
+
+//     return [];
+//   };
+
+//   const resolveContent = (key) => {
+//     if (!key) return null;
+
+//     if (key.startsWith("cat_")) {
+//       const catId = key.replace("cat_", "");
+//       const cat = category.find((c) => String(c.id) === catId);
+//       const subCats = getSubCategoriesForCategory(catId);
+
+//       if (subCats.length > 0) {
+//         return {
+//           title: cat?.name,
+//           items: [],
+//           isNumeral: cat ? isNumeralCat(cat) : false,
+//           hint: "Select a sub-section from the left to view items.",
+//         };
+//       }
+
+//       const directItems = filteredPalaeographical.filter(
+//         (item) =>
+//           sameId(item.category_id, catId) &&
+//           item.sub_category_id == null &&
+//           item.child_category_id == null,
+//       );
+
+//       return {
+//         title: cat?.name,
+//         items: directItems,
+//         isNumeral: cat ? isNumeralCat(cat) : false,
+//       };
+//     }
+
+//     if (key.startsWith("sub_")) {
+//       const subId = key.replace("sub_", "");
+//       const sc = subCategory.find((s) => String(s.id) === subId);
+//       const parentCat = category.find((c) => sameId(c.id, sc?.category_id));
+//       const childCats = getChildCategoriesForSubCategory(subId);
+
+//       if (childCats.length > 0) {
+//         return {
+//           title: sc?.name,
+//           items: [],
+//           isNumeral: parentCat ? isNumeralCat(parentCat) : false,
+//           hint: "Select a sub-section from the left to view items.",
+//         };
+//       }
+
+//       const items = filteredPalaeographical.filter((p) =>
+//         sameId(p.sub_category_id, subId),
+//       );
+
+//       return {
+//         title: sc?.name,
+//         items,
+//         isNumeral: parentCat ? isNumeralCat(parentCat) : false,
+//       };
+//     }
+
+//     if (key.startsWith("child_")) {
+//       const childId = key.replace("child_", "");
+
+//       const cc =
+//         childCategory.find((c) => String(c.id) === childId) ||
+//         filteredPalaeographical
+//           .find((p) => sameId(p.child_category?.id, childId))?.child_category;
+
+//       const parentSub = subCategory.find((s) =>
+//         sameId(s.id, cc?.sub_category_id),
+//       );
+//       const parentCat = category.find((c) =>
+//         sameId(c.id, parentSub?.category_id),
+//       );
+
+//       const items = filteredPalaeographical.filter(
+//         (p) =>
+//           sameId(p.child_category_id, childId) ||
+//           sameId(p.child_category?.id, childId),
+//       );
+
+//       return {
+//         title: cc?.name,
+//         items,
+//         isNumeral: parentCat ? isNumeralCat(parentCat) : false,
+//       };
+//     }
+
+//     return null;
+//   };
+
+//   const content = resolveContent(selectedKey);
+
+//   const handleTreeSelect = (key, options = {}) => {
+//     setSelectedKey(key);
+//     const nextOpenPath =
+//       options.hasChildren && options.isOpen
+//         ? getClosedPathForNode(key)
+//         : getOpenPathForNode(key, options);
+
+//     setOpenKeys(new Set(nextOpenPath));
+
+//     if (drawerOpen && !options.hasChildren) {
+//       setDrawerOpen(false);
+//     }
+//   };
+
+//   const handleFilterChange = (key, value) =>
+//     setFilters((prev) => ({ ...prev, [key]: value }));
+
+//   const resetFilters = () =>
+//     setFilters({
+//       period: "All",
+//       script: "All",
+//       varna: "All",
+//       symbols: "All",
+//       citra: "All",
+//     });
+
+//   const sidebarProps = {
+//     sortedCategories,
+//     getSubCategoriesForCategory,
+//     getChildCategoriesForSubCategory,
+//     selectedKey,
+//     onSelect: handleTreeSelect,
+//     openKeys,
+//   };
+
+//   const selectedLabel = (() => {
+//     if (!selectedKey || !content?.title) return "Select Category";
+//     return content.title.length > 22
+//       ? content.title.slice(0, 22) + "…"
+//       : content.title;
+//   })();
+
+//   return (
+//     <>
+//       {/* Hero Banner */}
+//       <div className="relative h-[40vh] sm:h-[50vh] mt-12 flex items-center justify-center">
+//         <img
+//           src="images/inscription/main.jpg"
+//           alt="Inscriptions"
+//           className="absolute inset-0 w-full h-full object-cover"
+//         />
+//         <div className="absolute inset-0 bg-black/40"></div>
+//         <div className="absolute top-16 left-4 sm:left-6 z-10 text-white p-3 flex items-center gap-2 text-sm sm:text-base leading-6 tracking-wide">
+//           <Link to="/" className="hover:underline">
+//             Home
+//           </Link>
+//           <span>/</span>
+//           <span className="opacity-80">Palaeographical Database</span>
+//         </div>
+//         <h1 className="relative px-4 z-10 text-2xl sm:text-4xl md:text-5xl text-white font-semibold text-center leading-tight">
+//           Palaeographical Database of Inscriptions
+//         </h1>
+//       </div>
+
+//       {/* Intro */}
+//       <div className="px-6 lg:px-20 mx-auto py-10 sm:py-16">
+//         <h2 className="text-xl sm:text-3xl font-semibold mb-4">
+//           Database of Palaeographical and Visual Features of Inscriptions
+//         </h2>
+//         <p className="text-base sm:text-lg mb-8 text-justify">
+//           Inscriptions are among the earliest forms of writing in human
+//           civilisation. This initiative aims to bring together palaeographic
+//           research to build a comprehensive, evolving repository of
+//           inscriptional features from Nepal across key historical periods,
+//           including the Licchavi, Malla, and Shah/Rana eras. The project enables
+//           both scholars and the wider public to explore, compare, and analyse
+//           inscriptions from the region. By examining dated and undated materials
+//           side by side, readers can better identify stylistic characteristics
+//           and historical patterns. Beyond textual analysis, the study also sheds
+//           light on craftsmanship, production techniques, usage contexts, and
+//           intellectual traditions, with particular attention to the evolution of
+//           scripts and visual paratextual elements.
+//         </p>
+
+//         <div className="max-w-3xl mx-auto px-4 pb-10 sm:pb-12 text-center text-sm leading-relaxed">
+//           <p className="font-medium break-words">
+//             नातिकृशैर्नातिदीर्घैर्ह्रस्वदीर्घादिलक्षितैः ।
+//           </p>
+//           <p className="font-medium break-words">
+//             सम्पूर्णावयवैर्मात्राबिन्दुसंयोगलक्षितै: ॥
+//           </p>
+//           <p>nātikṛśair nātidīrghair hrasvadīrghādilakṣitaiḥ |</p>
+//           <p>sampūrṇāvayavair mātrābindusaṃyogalakṣitaiḥ ||</p>
+//           <p className="mt-2">
+//             [The letters should not be] too broad or too thin,{" "}
+//             <br className="hidden sm:block" />
+//             the short and long vowel signs [should be] marked [properly],{" "}
+//             <br className="hidden sm:block" />
+//             all parts [of the letters should be] inscribed [fully],{" "}
+//             <br className="hidden sm:block" />
+//             [and] the dots and conjunctions [should be] marked [clearly].
+//           </p>
+//           <p className="text-xs mt-3 text-gray-600">
+//             (<span className="italic">Hayaśīrṣapañcarātra,</span> 2.31.11)
+//           </p>
+//           <div className="mt-4 flex justify-center">
+//             <div className="cursor-pointer w-full sm:w-3/4">
+//               <audio controls controlsList="nodownload" className="w-full">
+//                 <source src="/images/database.wav" type="audio/mpeg" />
+//                 Your browser does not support the audio element.
+//               </audio>
+//             </div>
+//           </div>
+//         </div>
+
+//         <h2 className="mb-6 sm:mb-8 text-lg sm:text-2xl text-center">
+//           Our database is under development and continues to expand as new
+//           materials are added on ongoing basis. Visit and explore the
+//           collection!
+//         </h2>
+
+//         {/* Filters */}
+//         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-6 mb-6">
+//           {[
+//             { key: "period", label: "Period", allLabel: "All Periods" },
+//             { key: "script", label: "Script", allLabel: "All Scripts" },
+//             { key: "varna", label: "Varṇa", allLabel: "All Varṇa" },
+//             {
+//               key: "symbols",
+//               label: "Symbols, Signs",
+//               allLabel: "All Symbols",
+//             },
+//             { key: "citra", label: "Citra (figures)", allLabel: "All Citra" },
+//           ].map(({ key, label, allLabel }) => (
+//             <div key={key}>
+//               <label className="block text-xs sm:text-sm font-medium mb-1 sm:mb-2">
+//                 {label}
+//               </label>
+//               <select
+//                 className="border cursor-pointer p-2 sm:p-3 rounded w-full text-sm"
+//                 value={filters[key]}
+//                 onChange={(e) => handleFilterChange(key, e.target.value)}>
+//                 {unique(key).map((v) => (
+//                   <option key={v} value={v}>
+//                     {v === "All" ? allLabel : v}
+//                   </option>
+//                 ))}
+//               </select>
+//             </div>
+//           ))}
+//         </div>
+
+//         <div className="flex justify-end mb-8 sm:mb-10">
+//           <button
+//             onClick={resetFilters}
+//             className="px-4 sm:px-6 py-2 border cursor-pointer rounded text-sm hover:bg-gray-100 transition">
+//             Reset Filters
+//           </button>
+//         </div>
+//       </div>
+
+//       {/* ── Two-Panel Layout ─────────────────────────────────────────────────── */}
+//       <div className="px-6 lg:px-20 mx-auto pb-24">
+//         <div className="lg:hidden mb-4">
+//           <button
+//             onClick={() => setDrawerOpen(true)}
+//             className="flex items-center gap-2 px-4 py-2.5 bg-[#50644b] text-white text-sm font-medium rounded-lg shadow-sm w-full sm:w-auto">
+//             <svg
+//               width="18"
+//               height="18"
+//               fill="none"
+//               stroke="currentColor"
+//               strokeWidth="2"
+//               viewBox="0 0 24 24">
+//               <path
+//                 strokeLinecap="round"
+//                 strokeLinejoin="round"
+//                 d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12"
+//               />
+//             </svg>
+//             <span>Categories</span>
+//             {selectedKey && content?.title && (
+//               <>
+//                 <span className="opacity-50 mx-1">·</span>
+//                 <span className="opacity-80 truncate">{selectedLabel}</span>
+//               </>
+//             )}
+//           </button>
+//         </div>
+
+//         <div className="flex gap-6 lg:gap-16 min-h-[500px] lg:min-h-[600px]">
+//           <aside className="hidden lg:block w-96 shrink-0 border border-gray-200 rounded-lg overflow-y-auto self-start sticky top-4 ">
+//             <SidebarContent {...sidebarProps} />
+//           </aside>
+
+//           <div
+//             ref={contentPanelRef}
+//             className="flex-1 p-4 sm:p-6 overflow-y-auto border border-gray-200 rounded-lg min-w-0 max-h-[80vh] self-start lg:sticky top-24">
+//             {!selectedKey ? (
+//               <div className="h-full flex flex-col items-center justify-center text-center text-gray-400 gap-3 py-16 sm:py-20">
+//                 <svg
+//                   width="48"
+//                   height="48"
+//                   fill="none"
+//                   stroke="currentColor"
+//                   strokeWidth="1.5"
+//                   viewBox="0 0 24 24">
+//                   <path
+//                     strokeLinecap="round"
+//                     strokeLinejoin="round"
+//                     d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12"
+//                   />
+//                 </svg>
+//                 <p className="text-base sm:text-lg font-medium">
+//                   Select a category
+//                 </p>
+//                 <p className="text-sm max-w-xs">
+//                   {window.innerWidth < 1024
+//                     ? 'Tap "Categories" above to browse.'
+//                     : "Click on any category, sub-category, or section to view its palaeographical items."}
+//                 </p>
+//               </div>
+//             ) : content ? (
+//               <>
+//                 <h3 className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6">
+//                   {content.title}
+//                 </h3>
+
+//                 {content.hint && (
+//                   <p className="text-sm text-gray-500 italic mb-4 sm:mb-6">
+//                     {content.hint}
+//                   </p>
+//                 )}
+
+//                 <div className="flex flex-wrap gap-3 sm:gap-6">
+//                   {content.items.length > 0
+//                     ? content.isNumeral
+//                       ? sortByInsnGroup(content.items).map((item) => (
+//                           <NumeralBox key={item.id} item={item} />
+//                         ))
+//                       : sortByInsnGroup(content.items).map((item) => (
+//                           <CharacterBox
+//                             key={item.id}
+//                             image={item.image}
+//                             label={item.image_name || item.name || "Untitled"}
+//                             link={item.url || null}
+//                             hasData={true}
+//                           />
+//                         ))
+//                     : !content.hint && (
+//                         <CharacterBox
+//                           label={`${content.title} (In preparation)`}
+//                           hasData={false}
+//                         />
+//                       )}
+//                 </div>
+//               </>
+//             ) : (
+//               <CharacterBox label="In preparation" hasData={false} />
+//             )}
+//           </div>
+//         </div>
+//       </div>
+
+//       {/* ── Mobile Drawer Overlay ──────────────────────────────────────────── */}
+//       {drawerOpen && (
+//         <div className="fixed inset-0 z-50 lg:hidden">
+//           <div
+//             className="absolute inset-0 bg-black/50 transition-opacity"
+//             onClick={() => setDrawerOpen(false)}
+//           />
+
+//           <div
+//             ref={drawerRef}
+//             className="absolute top-12 left-0 h-full w-[280px] sm:w-[320px] backdrop-blur-lg shadow-2xl flex flex-col overflow-hidden"
+//             style={{ animation: "slideInLeft 0.25s ease-out" }}>
+//             <div className="flex items-center justify-between px-4 py-3 bg-[#50644b]">
+//               <span className="text-white font-semibold text-sm tracking-wide uppercase">
+//                 Categories
+//               </span>
+//               <button
+//                 onClick={() => setDrawerOpen(false)}
+//                 className="text-white/80 hover:text-white transition-colors p-1 rounded"
+//                 aria-label="Close categories">
+//                 <svg
+//                   width="20"
+//                   height="20"
+//                   fill="none"
+//                   stroke="currentColor"
+//                   strokeWidth="2"
+//                   viewBox="0 0 24 24">
+//                   <path
+//                     strokeLinecap="round"
+//                     strokeLinejoin="round"
+//                     d="M6 18L18 6M6 6l12 12"
+//                   />
+//                 </svg>
+//               </button>
+//             </div>
+
+//             <div className="flex-1 overflow-y-auto">
+//               <SidebarContent {...sidebarProps} />
+//             </div>
+//           </div>
+//         </div>
+//       )}
+
+//       <style>{`
+//         @keyframes slideInLeft {
+//           from { transform: translateX(-100%); }
+//           to   { transform: translateX(0); }
+//         }
+//       `}</style>
+//     </>
+//   );
+// };
+
+// export default Palaeographical;
