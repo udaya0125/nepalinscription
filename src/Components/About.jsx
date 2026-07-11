@@ -89,7 +89,6 @@
 
 // export default About;
 
-
 // import React, { useEffect, useState } from "react";
 // import { Link, useNavigate } from "react-router-dom";
 // import axios from "axios";
@@ -309,7 +308,6 @@
 
 // export default About;
 
-
 import React, { useEffect, useState, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -332,9 +330,7 @@ const About = () => {
   useEffect(() => {
     const fetchInscription = async () => {
       try {
-        const response = await axios.get(
-          `${API_BASE_URL}/inscriptions`,
-        );
+        const response = await axios.get(`${API_BASE_URL}/inscriptions`);
         const data = response.data;
 
         let inscriptionData = [];
@@ -363,10 +359,20 @@ const About = () => {
 
         const sortedInscriptions = publishedInscriptions.sort((a, b) => {
           const dateA = new Date(
-            a.created_at || a.date_added || a.createdAt || a.timestamp || a.date_published || a.published_at,
+            a.created_at ||
+              a.date_added ||
+              a.createdAt ||
+              a.timestamp ||
+              a.date_published ||
+              a.published_at,
           );
           const dateB = new Date(
-            b.created_at || b.date_added || b.createdAt || b.timestamp || b.date_published || b.published_at,
+            b.created_at ||
+              b.date_added ||
+              b.createdAt ||
+              b.timestamp ||
+              b.date_published ||
+              b.published_at,
           );
           return dateB - dateA;
         });
@@ -395,8 +401,9 @@ const About = () => {
   }, [next, latestInscriptions.length]);
 
   const prev = () => {
-    setActiveIndex((prev) =>
-      (prev - 1 + latestInscriptions.length) % latestInscriptions.length
+    setActiveIndex(
+      (prev) =>
+        (prev - 1 + latestInscriptions.length) % latestInscriptions.length,
     );
   };
 
@@ -454,7 +461,7 @@ const About = () => {
         </div>
       </div> */}
 
-            <div className="hidden md:flex justify-center items-center">
+      <div className="hidden md:flex justify-center items-center">
         <div className="max-w-3xl mx-auto px-4 text-center space-y-6 py-12">
           <h2 className="text-4xl font-semibold sm:text-5xl">
             Inscriptions of Nepal
@@ -484,8 +491,7 @@ const About = () => {
           backgroundImage: "url('images/bg3.png')",
           backgroundPosition: "top",
           backgroundSize: "cover",
-        }}
-        >
+        }}>
         <div className="max-w-3xl mx-auto px-4 text-center space-y-6 py-12">
           <h2 className="text-4xl font-semibold sm:text-5xl">
             Inscriptions of Nepal
@@ -520,7 +526,6 @@ const About = () => {
 
         {latestInscriptions.length > 0 ? (
           <div className="mt-12 border-2 border-[#99541b] p-4 rounded-md">
-
             {/* key forces remount on slide change → re-triggers the CSS animation */}
             <div key={activeIndex} className="slide-fade">
               <div className="grid sm:grid-cols-2 my-4 gap-6">
@@ -533,7 +538,11 @@ const About = () => {
                     {activeInscription?.images?.length > 0 ? (
                       <img
                         src={`${imgurl}/${activeInscription.images[0].image_path}`}
-                        alt={activeInscription.title || activeInscription.name || "Latest Inscription"}
+                        alt={
+                          activeInscription.title ||
+                          activeInscription.name ||
+                          "Latest Inscription"
+                        }
                         className="w-full h-full object-contain"
                       />
                     ) : (
@@ -565,7 +574,9 @@ const About = () => {
                 to={`/${activeInscription.slug}/details`}
                 onClick={() => window.scrollTo(0, 0)}
                 className="block hover:opacity-80 transition-opacity">
-                <p className="text-2xl font-medium">{activeInscription.title}</p>
+                <p className="text-2xl font-medium">
+                  {activeInscription.title}
+                </p>
               </Link>
             </div>
 
